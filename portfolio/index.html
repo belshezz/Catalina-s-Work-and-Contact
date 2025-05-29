@@ -29,6 +29,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
         }
 
         header {
@@ -36,6 +37,8 @@
             justify-content: space-between;
             align-items: flex-start;
             width: 100%;
+            position: relative;
+            z-index: 10;
         }
 
         .logo {
@@ -46,13 +49,18 @@
             letter-spacing: -0.08em;
         }
 
+        /* Info section - always fixed to top right corner */
         .info {
+            position: fixed;
+            top: 40px;
+            right: 40px;
             font-size: 28px;
             font-weight: 500;
             color: #000;
             text-decoration: none;
             cursor: pointer;
             letter-spacing: -0.08em;
+            z-index: 20;
         }
 
         .info:hover {
@@ -115,14 +123,81 @@
             white-space: nowrap;
         }
 
+        /* PDF Viewer - completely minimal, invisible container */
+        .pdf-viewer {
+            position: fixed;
+            top: 120px;
+            right: 40px;
+            width: min(400px, 35vw);
+            height: calc(100vh - 200px);
+            display: none;
+            z-index: 15;
+            background-color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .pdf-viewer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+        }
+
+        /* Invisible close button */
+        .close-pdf {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            z-index: 25;
+        }
+
+        .close-pdf:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Show PDF viewer when active */
+        .pdf-viewer.active {
+            display: block;
+        }
+
         /* Responsive Design */
+        @media (min-width: 1400px) {
+            .pdf-viewer {
+                width: min(500px, 30vw);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .pdf-viewer {
+                width: min(350px, 40vw);
+            }
+        }
+
         @media (max-width: 1024px) {
             .container {
                 padding: 30px;
             }
             
-            .logo, .info {
+            .logo {
                 font-size: 24px;
+            }
+            
+            .info {
+                font-size: 24px;
+                top: 30px;
+                right: 30px;
             }
             
             .projects-title, .projects-container {
@@ -144,6 +219,12 @@
             .projects-title {
                 margin-right: 4px;
             }
+
+            .pdf-viewer {
+                width: min(300px, 45vw);
+                top: 100px;
+                right: 30px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -151,8 +232,14 @@
                 padding: 20px;
             }
             
-            .logo, .info {
+            .logo {
                 font-size: 20px;
+            }
+            
+            .info {
+                font-size: 20px;
+                top: 20px;
+                right: 20px;
             }
             
             .projects-title, .projects-container {
@@ -174,10 +261,22 @@
             .projects-title {
                 margin-right: 3px;
             }
+
+            .pdf-viewer {
+                top: 80px;
+                right: 20px;
+                left: 20px;
+                width: auto;
+                height: calc(100vh - 140px);
+            }
         }
 
         @media (max-width: 480px) {
-            .logo, .info {
+            .logo {
+                font-size: 18px;
+            }
+            
+            .info {
                 font-size: 18px;
             }
             
@@ -259,20 +358,34 @@
         </header>
 
         <div class="projects-section">
-                <span class="projects-title">Projects:</span><a href="essays/keffiyeh-and-trateze.pdf" class="project-item" target="_blank">
-                    <span class="project-number">1</span>
-                    <span class="project-name">Keffiyeh and Trateze</span>
-                </a><a href="essays/roxanne-shante.pdf" class="project-item" target="_blank">
-                    <span class="project-number">2</span>
-                    <span class="project-name">Roxanne Shante</span>
-                </a><a href="essays/meta-vaux-warrick-fuller.pdf" class="project-item" target="_blank">
-                    <span class="project-number">3</span>
-                    <span class="project-name">Meta Vaux Warrick Fuller</span>
-                </a><a href="essays/stays-and-femininity.pdf" class="project-item" target="_blank">
-                    <span class="project-number">4</span>
-                    <span class="project-name">Stays and the idea of femininity</span>
-                </a>
+            <span class="projects-title">Projects:</span>
+            <a href="#" class="project-item" onclick="openPDF('essays/keffiyeh.pdf'); return false;">
+                <span class="project-number">1</span>
+                <span class="project-name">Keffiyeh</span>
+            </a>
+            <a href="#" class="project-item" onclick="openPDF('essays/trateze.pdf'); return false;">
+                <span class="project-number">2</span>
+                <span class="project-name">Trateze</span>
+            </a>
+            <a href="#" class="project-item" onclick="openPDF('essays/roxanne-shante.pdf'); return false;">
+                <span class="project-number">3</span>
+                <span class="project-name">Roxanne Shante</span>
+            </a>
+            <a href="#" class="project-item" onclick="openPDF('essays/meta-vaux-warwick-fuller.pdf'); return false;">
+                <span class="project-number">4</span>
+                <span class="project-name">Meta Vaux Warwick Fuller</span>
+            </a>
+            <a href="#" class="project-item" onclick="openPDF('essays/stays-and-femininity.pdf'); return false;">
+                <span class="project-number">5</span>
+                <span class="project-name">Stays and the idea of femininity</span>
+            </a>
         </div>
+    </div>
+
+    <!-- PDF Viewer - Invisible Container -->
+    <div class="pdf-viewer" id="pdfViewer">
+        <button class="close-pdf" onclick="closePDF()">×</button>
+        <iframe id="pdfIframe" src=""></iframe>
     </div>
 
     <!-- Info Modal -->
@@ -281,12 +394,34 @@
             <h2>About</h2>
             <p>Fashion Communications Student<br>
             Showcasing creative work and projects<br>
-            Contact: your.email@example.com</p>
+            Contact: catalinachaverrabrown@gmail.com</p>
             <button class="close-btn" onclick="closeInfo()">Close</button>
         </div>
     </div>
 
     <script>
+        function openPDF(pdfPath) {
+            const viewer = document.getElementById('pdfViewer');
+            const iframe = document.getElementById('pdfIframe');
+            
+            // Set the PDF source
+            iframe.src = pdfPath;
+            
+            // Show the viewer
+            viewer.classList.add('active');
+        }
+
+        function closePDF() {
+            const viewer = document.getElementById('pdfViewer');
+            const iframe = document.getElementById('pdfIframe');
+            
+            // Hide the viewer
+            viewer.classList.remove('active');
+            
+            // Clear the iframe source
+            iframe.src = '';
+        }
+
         function openInfo() {
             document.getElementById('infoModal').style.display = 'flex';
         }
@@ -295,14 +430,33 @@
             document.getElementById('infoModal').style.display = 'none';
         }
 
-        // Close modal when clicking outside content
+        // Close info modal when clicking outside content
         document.getElementById('infoModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeInfo();
             }
         });
 
-        // Project items now have direct links to essays
+        // Close PDF with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePDF();
+                closeInfo();
+            }
+        });
+
+        // Close PDF when clicking outside (optional)
+        document.addEventListener('click', function(e) {
+            const viewer = document.getElementById('pdfViewer');
+            const projectItems = document.querySelectorAll('.project-item');
+            
+            // Check if click is outside PDF viewer and not on a project item
+            if (!viewer.contains(e.target) && 
+                !Array.from(projectItems).some(item => item.contains(e.target)) &&
+                !e.target.classList.contains('info')) {
+                closePDF();
+            }
+        });
     </script>
 </body>
 </html>
