@@ -123,17 +123,17 @@
             white-space: nowrap;
         }
 
-        /* PDF Viewer - completely minimal, invisible container */
+        /* PDF Viewer - completely minimal, invisible container - WIDER VERSION */
         .pdf-viewer {
             position: fixed;
             top: 120px;
             right: 40px;
-            width: min(400px, 35vw);
+            width: min(700px, 55vw); /* MUCH WIDER - was 400px/35vw */
             height: calc(100vh - 200px);
             display: none;
             z-index: 15;
             background-color: white;
-            padding: 20px;
+            padding: 30px; /* More padding for comfort */
             overflow-y: auto;
         }
 
@@ -172,16 +172,28 @@
             display: block;
         }
 
-        /* Responsive Design */
+        /* Responsive Design - Updated for wider viewer */
+        @media (min-width: 1600px) {
+            .pdf-viewer {
+                width: min(800px, 50vw); /* Even wider on large screens */
+            }
+        }
+
         @media (min-width: 1400px) {
             .pdf-viewer {
-                width: min(500px, 30vw);
+                width: min(700px, 55vw);
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .pdf-viewer {
+                width: min(600px, 60vw);
             }
         }
 
         @media (max-width: 1200px) {
             .pdf-viewer {
-                width: min(350px, 40vw);
+                width: min(500px, 65vw);
             }
         }
 
@@ -221,9 +233,10 @@
             }
 
             .pdf-viewer {
-                width: min(300px, 45vw);
+                width: min(400px, 70vw);
                 top: 100px;
                 right: 30px;
+                padding: 20px;
             }
         }
 
@@ -363,9 +376,9 @@
                 <span class="project-number">1</span>
                 <span class="project-name">Keffiyeh</span>
             </a>
-            <a href="#" class="project-item" onclick="openPDF('essays/trateze.pdf'); return false;">
+            <a href="#" class="project-item" onclick="openPDF('essays/tatreez.pdf'); return false;">
                 <span class="project-number">2</span>
-                <span class="project-name">Trateze</span>
+                <span class="project-name">Tatreez</span>
             </a>
             <a href="#" class="project-item" onclick="openPDF('essays/roxanne-shante.pdf'); return false;">
                 <span class="project-number">3</span>
