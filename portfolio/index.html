@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Portfolio</title>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Satoshi', sans-serif;
+            background-color: #f8f8f8;
+            color: #000;
+            line-height: 1.1;
+            font-weight: 500;
+            font-size: 18px;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            height: 100vh;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 500;
+            color: #000;
+            text-decoration: none;
+            letter-spacing: -0.08em;
+        }
+
+        .info {
+            font-size: 28px;
+            font-weight: 500;
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+            letter-spacing: -0.08em;
+        }
+
+        .info:hover {
+            opacity: 0.7;
+        }
+
+        .projects-section {
+            margin-bottom: 20px;
+        }
+
+        .projects-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .projects-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px 30px;
+            align-items: center;
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .project-item:hover {
+            opacity: 0.6;
+        }
+
+        .project-item:visited {
+            color: #333;
+        }
+
+        .project-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background-color: #333;
+            color: white;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .project-name {
+            white-space: nowrap;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 30px;
+            }
+            
+            .logo, .info {
+                font-size: 24px;
+            }
+            
+            .projects-title, .projects-container {
+                font-size: 65px;
+            }
+            
+            .project-number {
+                width: 65px;
+                height: 65px;
+                font-size: 30px;
+                margin-right: 4px;
+                margin-left: 4px;
+            }
+            
+            .project-name {
+                margin-right: 4px;
+            }
+            
+            .projects-title {
+                margin-right: 4px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .logo, .info {
+                font-size: 20px;
+            }
+            
+            .projects-title, .projects-container {
+                font-size: 50px;
+            }
+            
+            .project-number {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+                margin-right: 3px;
+                margin-left: 3px;
+            }
+            
+            .project-name {
+                margin-right: 3px;
+            }
+            
+            .projects-title {
+                margin-right: 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo, .info {
+                font-size: 18px;
+            }
+            
+            .projects-title, .projects-container {
+                font-size: 40px;
+            }
+            
+            .project-number {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                margin-right: 2px;
+                margin-left: 2px;
+            }
+            
+            .project-name {
+                margin-right: 2px;
+            }
+            
+            .projects-title {
+                margin-right: 2px;
+            }
+        }
+
+        /* Info Modal */
+        .info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(248, 248, 248, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .info-content {
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .info-content h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .info-content p {
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .close-btn {
+            background: none;
+            border: 2px solid #333;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background-color: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="logo">Catalina Brown</a>
+            <a href="#" class="info" onclick="openInfo()">Info</a>
+        </header>
+
+        <div class="projects-section">
+                <span class="projects-title">Projects:</span><a href="essays/keffiyeh-and-trateze.pdf" class="project-item" target="_blank">
+                    <span class="project-number">1</span>
+                    <span class="project-name">Keffiyeh and Trateze</span>
+                </a><a href="essays/roxanne-shante.pdf" class="project-item" target="_blank">
+                    <span class="project-number">2</span>
+                    <span class="project-name">Roxanne Shante</span>
+                </a><a href="essays/meta-vaux-warrick-fuller.pdf" class="project-item" target="_blank">
+                    <span class="project-number">3</span>
+                    <span class="project-name">Meta Vaux Warrick Fuller</span>
+                </a><a href="essays/stays-and-femininity.pdf" class="project-item" target="_blank">
+                    <span class="project-number">4</span>
+                    <span class="project-name">Stays and the idea of femininity</span>
+                </a>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="info-modal" id="infoModal">
+        <div class="info-content">
+            <h2>About</h2>
+            <p>Fashion Communications Student<br>
+            Showcasing creative work and projects<br>
+            Contact: your.email@example.com</p>
+            <button class="close-btn" onclick="closeInfo()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function openInfo() {
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        function closeInfo() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside content
+        document.getElementById('infoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeInfo();
+            }
+        });
+
+        // Project items now have direct links to essays
+    </script>
+</body>
+</html>
