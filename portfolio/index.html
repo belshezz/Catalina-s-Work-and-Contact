@@ -104,24 +104,6 @@
             color: #000;
         }
 
-        /* Info section - moved to bottom left */
-        .info {
-            position: fixed;
-            bottom: 40px;
-            left: 40px;
-            font-size: 18px;
-            font-weight: 500;
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-            letter-spacing: 0;
-            z-index: 20;
-        }
-
-        .info:hover {
-            opacity: 0.7;
-        }
-
         /* PDF Viewer - with black border and white background */
         .pdf-viewer {
             position: fixed;
@@ -132,7 +114,7 @@
             display: none;
             z-index: 15;
             background: #ffffff;
-            border: 2px solid #000;
+            border: 4px solid #000;
             overflow: hidden;
             user-select: none;
         }
@@ -167,8 +149,49 @@
             pointer-events: none;
         }
 
-        /* Minimal close button - white X */
+        /* About content styling inside the draggable box */
+        .about-content {
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            background: #ffffff;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: justify;
+        }
+
+        .about-content p {
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 1.6;
+            letter-spacing: 0;
+            color: #000;
+            text-align: justify;
+        }
+
+        /* Minimal close button - black X (for about box) */
         .close-pdf {
+            position: absolute;
+            top: 35px;
+            right: 10px;
+            background: none;
+            border: none;
+            width: 20px;
+            height: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #000000;
+            z-index: 35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: normal;
+        }
+
+        /* White X button for PDF viewers */
+        .pdf-close {
             position: absolute;
             top: 35px;
             right: 10px;
@@ -191,59 +214,6 @@
             display: block;
         }
 
-        /* Info Modal */
-        .info-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .info-content {
-            max-width: 500px;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .info-content h2 {
-            font-size: 24px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            letter-spacing: 0;
-            text-align: justify;
-        }
-
-        .info-content p {
-            font-size: 24px;
-            font-weight: 500;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            letter-spacing: 0;
-            text-align: justify;
-        }
-
-        .close-btn {
-            background: none;
-            border: 1px solid #000;
-            padding: 12px 24px;
-            font-size: 24px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            letter-spacing: 0;
-        }
-
-        .close-btn:hover {
-            background-color: #000;
-            color: white;
-        }
-
         /* Responsive Design */
         @media (max-width: 1024px) {
             .container {
@@ -253,15 +223,8 @@
             header {
                 top: 30px;
                 left: 30px;
-            }
-            
-            .projects-section {
-                left: 30px;
-            }
-            
-            .info {
-                bottom: 30px;
-                left: 30px;
+                width: calc(33.33vw - 60px);
+                max-width: calc(33.33vw - 60px);
             }
 
             .pdf-viewer {
@@ -279,6 +242,8 @@
             header {
                 top: 20px;
                 left: 20px;
+                width: calc(50vw - 40px);
+                max-width: calc(50vw - 40px);
             }
 
             .pdf-viewer {
@@ -289,13 +254,20 @@
                 height: calc(100vh - 140px);
             }
         }
+
+        @media (max-width: 480px) {
+            header {
+                width: calc(100vw - 40px);
+                max-width: calc(100vw - 40px);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <a href="#" class="logo">Catalina Chaverra Brown</a>
-            <a href="#" class="about" onclick="openInfo()">About</a>
+            <a href="#" class="about" onclick="openAbout()">About</a>
             
             <div class="projects-section">
                 <a href="#" class="project-item" onclick="openPDF('essays/stays-and-femininity.pdf', 'stays'); return false;">01 — How did stays construct the idea of femininity in the 18th century?</a>
@@ -305,24 +277,6 @@
                 <a href="#" class="project-item" onclick="openPDF('essays/roxanne-shante.pdf', 'roxanne'); return false;">05 — Roxanne Shanté 12" LP Poster Zine</a>
             </div>
         </header>
-    </div>
-
-    <!-- PDF Viewer - Draggable Container -->
-    <div class="pdf-viewer" id="pdfViewer">
-        <div class="drag-handle" id="dragHandle"></div>
-        <button class="close-pdf" onclick="closePDF()">×</button>
-        <iframe id="pdfIframe" src=""></iframe>
-    </div>
-
-    <!-- Info Modal -->
-    <div class="info-modal" id="infoModal">
-        <div class="info-content">
-            <h2>About</h2>
-            <p>Fashion Communications Student<br>
-            Showcasing creative work and projects<br>
-            Contact: catalinachaverrabrown@gmail.com</p>
-            <button class="close-btn" onclick="closeInfo()">Close</button>
-        </div>
     </div>
 
     <script>
@@ -351,7 +305,7 @@
             
             viewer.innerHTML = `
                 <div class="drag-handle" data-viewer="${viewerId}"></div>
-                <button class="close-pdf" onclick="closePDF('${projectName}')">×</button>
+                <button class="pdf-close" onclick="closePDF('${projectName}')">×</button>
                 <iframe src="${pdfPath}"></iframe>
             `;
             
@@ -359,6 +313,49 @@
             
             // Track this PDF
             openPDFs[projectName] = {
+                viewerId: viewerId,
+                element: viewer
+            };
+            
+            // Initialize drag data
+            dragData[viewerId] = {
+                xOffset: randomX,
+                yOffset: randomY,
+                isDragging: false
+            };
+        }
+
+        function openAbout() {
+            // If about is already open, close it (toggle functionality)
+            if (openPDFs['about']) {
+                closePDF('about');
+                return;
+            }
+
+            // Create unique viewer for about section
+            const viewerId = 'aboutViewer';
+            const viewer = document.createElement('div');
+            viewer.className = 'pdf-viewer active';
+            viewer.id = viewerId;
+            viewer.style.zIndex = ++highestZIndex;
+            
+            // Random initial position to avoid overlap
+            const randomX = Math.random() * 200;
+            const randomY = Math.random() * 100;
+            viewer.style.transform = `translate3d(${randomX}px, ${randomY}px, 0)`;
+            
+            viewer.innerHTML = `
+                <div class="drag-handle" data-viewer="${viewerId}"></div>
+                <button class="close-pdf" onclick="closePDF('about')">×</button>
+                <div class="about-content">
+                    <p>As a fashion historian, theorist, and writer based in London, my work is deeply rooted in uncovering and amplifying the often-overlooked histories of Afro-Latina and Caribbean women. Fashion, for me, is not merely a study of garments and aesthetics but a vital lens through which to examine cultural identity, resistance, and the legacies of colonialism. My research is driven by a decolonial framework, which challenges dominant narratives and seeks to recenter marginalised voices within fashion history.</p>
+                </div>
+            `;
+            
+            document.body.appendChild(viewer);
+            
+            // Track this about box
+            openPDFs['about'] = {
                 viewerId: viewerId,
                 element: viewer
             };
@@ -387,15 +384,7 @@
             }
         }
 
-        function openInfo() {
-            document.getElementById('infoModal').style.display = 'flex';
-        }
-
-        function closeInfo() {
-            document.getElementById('infoModal').style.display = 'none';
-        }
-
-        // Enhanced drag functionality for multiple PDFs
+        // Enhanced drag functionality for multiple PDFs and about box
         function dragStart(e) {
             const dragHandle = e.target;
             if (!dragHandle.classList.contains('drag-handle')) return;
@@ -405,7 +394,7 @@
             
             e.preventDefault();
             
-            // Bring this PDF to front
+            // Bring this box to front
             const viewer = document.getElementById(viewerId);
             viewer.style.zIndex = ++highestZIndex;
             
@@ -470,27 +459,19 @@
         document.addEventListener('touchend', dragEnd, false);
         document.addEventListener('touchmove', drag, false);
 
-        // Close info modal when clicking outside content
-        document.getElementById('infoModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeInfo();
-            }
-        });
-
-        // Close PDFs with Escape key (closes most recent) or Shift+Esc (closes all)
+        // Close PDFs and about box with Escape key (closes most recent) or Shift+Esc (closes all)
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const openPdfNames = Object.keys(openPDFs);
                 if (openPdfNames.length > 0) {
                     if (e.shiftKey) {
-                        // Close all PDFs
+                        // Close all PDFs and about box
                         openPdfNames.forEach(name => closePDF(name));
                     } else {
-                        // Close most recent PDF
+                        // Close most recent PDF or about box
                         closePDF(openPdfNames[openPdfNames.length - 1]);
                     }
                 }
-                closeInfo();
             }
         });
     </script>
