@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fashion Portfolio</title>
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@500&display=swap" rel="stylesheet">
     <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('analogue65medium.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,8 +19,8 @@
         }
 
         body {
-            font-family: 'Satoshi', sans-serif;
-            background-color: #f8f8f8;
+            font-family: 'CustomFont', sans-serif;
+            background-color: #ffffff;
             color: #000;
             line-height: 1.1;
             font-weight: 500;
@@ -33,67 +39,57 @@
         }
 
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            width: 100%;
-            position: relative;
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            width: calc(33.33vw - 80px);
+            max-width: calc(33.33vw - 80px);
             z-index: 10;
         }
 
         .logo {
-            font-size: 28px;
+            font-size: 18px;
             font-weight: 500;
             color: #000;
             text-decoration: none;
-            letter-spacing: -0.08em;
+            letter-spacing: 0;
+            display: block;
+            margin-bottom: 2px;
         }
 
-        /* Info section - always fixed to top right corner */
-        .info {
-            position: fixed;
-            top: 40px;
-            right: 40px;
-            font-size: 28px;
+        /* About section - directly under name */
+        .about {
+            font-size: 18px;
             font-weight: 500;
             color: #000;
             text-decoration: none;
             cursor: pointer;
-            letter-spacing: -0.08em;
-            z-index: 20;
+            letter-spacing: 0;
+            display: block;
+            margin-bottom: 2px;
         }
 
-        .info:hover {
+        .about:hover {
             opacity: 0.7;
         }
 
+        /* Projects section - directly under about */
         .projects-section {
-            margin-bottom: 20px;
-        }
-
-        .projects-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        .projects-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 25px 30px;
-            align-items: center;
+            margin-top: 0;
         }
 
         .project-item {
-            display: flex;
-            align-items: center;
+            display: block;
             cursor: pointer;
             transition: opacity 0.3s ease;
-            font-size: 28px;
-            font-weight: 700;
-            color: #333;
+            font-size: 18px;
+            font-weight: 500;
+            color: #000;
             text-decoration: none;
+            margin-bottom: 2px;
+            letter-spacing: 0;
+            word-wrap: break-word;
+            line-height: 1.3;
         }
 
         .project-item:hover {
@@ -101,217 +97,98 @@
         }
 
         .project-item:visited {
-            color: #333;
+            color: #000;
         }
 
-        .project-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background-color: #333;
-            color: white;
-            border-radius: 50%;
-            font-size: 16px;
-            font-weight: 600;
-            margin-right: 15px;
-            flex-shrink: 0;
+        /* Info section - moved to bottom left */
+        .info {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+            letter-spacing: 0;
+            z-index: 20;
         }
 
-        .project-name {
-            white-space: nowrap;
+        .info:hover {
+            opacity: 0.7;
         }
 
-        /* PDF Viewer - completely minimal, invisible container - WIDER VERSION */
+        /* PDF Viewer - completely invisible container */
         .pdf-viewer {
             position: fixed;
             top: 120px;
             right: 40px;
-            width: min(700px, 55vw); /* MUCH WIDER - was 400px/35vw */
+            width: min(700px, 55vw);
             height: calc(100vh - 200px);
             display: none;
             z-index: 15;
-            background-color: white;
-            padding: 30px; /* More padding for comfort */
-            overflow-y: auto;
+            background: none;
+            border: none;
+            overflow: visible;
+            user-select: none;
+        }
+
+        .pdf-viewer.dragging {
+            cursor: grabbing;
+        }
+
+        /* Invisible drag handle */
+        .drag-handle {
+            position: absolute;
+            top: -15px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            cursor: move;
+            z-index: 30;
+            background: transparent;
         }
 
         .pdf-viewer iframe {
             width: 100%;
             height: 100%;
             border: none;
-            background-color: white;
+            background: transparent;
+            pointer-events: auto;
         }
 
-        /* Invisible close button */
+        .pdf-viewer.dragging iframe {
+            pointer-events: none;
+        }
+
+        /* Invisible close button - only appears on hover */
         .close-pdf {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.8);
+            top: 5px;
+            right: 5px;
+            background: none;
             border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 16px;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
             cursor: pointer;
             color: #666;
-            opacity: 0.7;
+            opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 25;
         }
 
+        .pdf-viewer:hover .close-pdf {
+            opacity: 0.3;
+        }
+
         .close-pdf:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.95);
+            opacity: 0.8;
         }
 
         /* Show PDF viewer when active */
         .pdf-viewer.active {
             display: block;
-        }
-
-        /* Responsive Design - Updated for wider viewer */
-        @media (min-width: 1600px) {
-            .pdf-viewer {
-                width: min(800px, 50vw); /* Even wider on large screens */
-            }
-        }
-
-        @media (min-width: 1400px) {
-            .pdf-viewer {
-                width: min(700px, 55vw);
-            }
-        }
-
-        @media (max-width: 1400px) {
-            .pdf-viewer {
-                width: min(600px, 60vw);
-            }
-        }
-
-        @media (max-width: 1200px) {
-            .pdf-viewer {
-                width: min(500px, 65vw);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .container {
-                padding: 30px;
-            }
-            
-            .logo {
-                font-size: 24px;
-            }
-            
-            .info {
-                font-size: 24px;
-                top: 30px;
-                right: 30px;
-            }
-            
-            .projects-title, .projects-container {
-                font-size: 65px;
-            }
-            
-            .project-number {
-                width: 65px;
-                height: 65px;
-                font-size: 30px;
-                margin-right: 4px;
-                margin-left: 4px;
-            }
-            
-            .project-name {
-                margin-right: 4px;
-            }
-            
-            .projects-title {
-                margin-right: 4px;
-            }
-
-            .pdf-viewer {
-                width: min(400px, 70vw);
-                top: 100px;
-                right: 30px;
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .logo {
-                font-size: 20px;
-            }
-            
-            .info {
-                font-size: 20px;
-                top: 20px;
-                right: 20px;
-            }
-            
-            .projects-title, .projects-container {
-                font-size: 50px;
-            }
-            
-            .project-number {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-                margin-right: 3px;
-                margin-left: 3px;
-            }
-            
-            .project-name {
-                margin-right: 3px;
-            }
-            
-            .projects-title {
-                margin-right: 3px;
-            }
-
-            .pdf-viewer {
-                top: 80px;
-                right: 20px;
-                left: 20px;
-                width: auto;
-                height: calc(100vh - 140px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo {
-                font-size: 18px;
-            }
-            
-            .info {
-                font-size: 18px;
-            }
-            
-            .projects-title, .projects-container {
-                font-size: 40px;
-            }
-            
-            .project-number {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-                margin-right: 2px;
-                margin-left: 2px;
-            }
-            
-            .project-name {
-                margin-right: 2px;
-            }
-            
-            .projects-title {
-                margin-right: 2px;
-            }
         }
 
         /* Info Modal */
@@ -321,7 +198,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(248, 248, 248, 0.95);
+            background-color: rgba(255, 255, 255, 0.95);
             display: none;
             align-items: center;
             justify-content: center;
@@ -335,31 +212,80 @@
         }
 
         .info-content h2 {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 500;
             margin-bottom: 20px;
+            letter-spacing: 0;
         }
 
         .info-content p {
             font-size: 18px;
-            font-weight: 400;
+            font-weight: 500;
             line-height: 1.6;
             margin-bottom: 30px;
+            letter-spacing: 0;
         }
 
         .close-btn {
             background: none;
-            border: 2px solid #333;
+            border: 1px solid #000;
             padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
+            letter-spacing: 0;
         }
 
         .close-btn:hover {
-            background-color: #333;
+            background-color: #000;
             color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 30px;
+            }
+            
+            header {
+                top: 30px;
+                left: 30px;
+            }
+            
+            .projects-section {
+                left: 30px;
+            }
+            
+            .info {
+                bottom: 30px;
+                left: 30px;
+            }
+
+            .pdf-viewer {
+                width: min(400px, 70vw);
+                top: 100px;
+                right: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            header {
+                top: 20px;
+                left: 20px;
+            }
+
+            .pdf-viewer {
+                top: 80px;
+                right: 20px;
+                left: 20px;
+                width: auto;
+                height: calc(100vh - 140px);
+            }
         }
     </style>
 </head>
@@ -367,36 +293,21 @@
     <div class="container">
         <header>
             <a href="#" class="logo">Catalina Brown</a>
-            <a href="#" class="info" onclick="openInfo()">Info</a>
+            <a href="#" class="about" onclick="openInfo()">About</a>
+            
+            <div class="projects-section">
+                <a href="#" class="project-item" onclick="openPDF('essays/stays-and-femininity.pdf'); return false;">01 — How did stays construct the idea of femininity in the 18th century?</a>
+                <a href="#" class="project-item" onclick="openPDF('essays/keffiyeh.pdf'); return false;">02 — How has the keffiyeh responded to the legacies of colonialism, in the 20th and 21st centuries?</a>
+                <a href="#" class="project-item" onclick="openPDF('essays/tatreez.pdf'); return false;">03 — Tatreez and the evolution of resistance</a>
+                <a href="#" class="project-item" onclick="openPDF('essays/meta-vaux-warwick-fuller.pdf'); return false;">04 — During the Harlem Renaissance, how did Meta Vaux Warrick Fuller's 'Ethiopia Awakening' (1921) challenge Eurocentric beauty ideals for African American women?</a>
+                <a href="#" class="project-item" onclick="openPDF('essays/roxanne-shante.pdf'); return false;">05 — Roxanne Shanté 12" LP Poster Zine</a>
+            </div>
         </header>
-
-        <div class="projects-section">
-            <span class="projects-title">Projects:</span>
-            <a href="#" class="project-item" onclick="openPDF('essays/keffiyeh.pdf'); return false;">
-                <span class="project-number">1</span>
-                <span class="project-name">Keffiyeh</span>
-            </a>
-            <a href="#" class="project-item" onclick="openPDF('essays/tatreez.pdf'); return false;">
-                <span class="project-number">2</span>
-                <span class="project-name">Tatreez</span>
-            </a>
-            <a href="#" class="project-item" onclick="openPDF('essays/roxanne-shante.pdf'); return false;">
-                <span class="project-number">3</span>
-                <span class="project-name">Roxanne Shante</span>
-            </a>
-            <a href="#" class="project-item" onclick="openPDF('essays/meta-vaux-warwick-fuller.pdf'); return false;">
-                <span class="project-number">4</span>
-                <span class="project-name">Meta Vaux Warwick Fuller</span>
-            </a>
-            <a href="#" class="project-item" onclick="openPDF('essays/stays-and-femininity.pdf'); return false;">
-                <span class="project-number">5</span>
-                <span class="project-name">Stays and the idea of femininity</span>
-            </a>
-        </div>
     </div>
 
-    <!-- PDF Viewer - Invisible Container -->
+    <!-- PDF Viewer - Draggable Container -->
     <div class="pdf-viewer" id="pdfViewer">
+        <div class="drag-handle" id="dragHandle"></div>
         <button class="close-pdf" onclick="closePDF()">×</button>
         <iframe id="pdfIframe" src=""></iframe>
     </div>
@@ -413,6 +324,14 @@
     </div>
 
     <script>
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
         function openPDF(pdfPath) {
             const viewer = document.getElementById('pdfViewer');
             const iframe = document.getElementById('pdfIframe');
@@ -422,6 +341,11 @@
             
             // Show the viewer
             viewer.classList.add('active');
+            
+            // Reset position
+            viewer.style.transform = 'translate3d(0px, 0px, 0)';
+            xOffset = 0;
+            yOffset = 0;
         }
 
         function closePDF() {
@@ -442,6 +366,72 @@
         function closeInfo() {
             document.getElementById('infoModal').style.display = 'none';
         }
+
+        // Drag functionality - simplified
+        function dragStart(e) {
+            const dragHandle = document.getElementById('dragHandle');
+            const viewer = document.getElementById('pdfViewer');
+            
+            // Only allow dragging from the drag handle
+            if (e.target === dragHandle) {
+                e.preventDefault();
+                
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+
+                isDragging = true;
+                viewer.classList.add('dragging');
+            }
+        }
+
+        function dragEnd(e) {
+            if (isDragging) {
+                const viewer = document.getElementById('pdfViewer');
+                
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+                viewer.classList.remove('dragging');
+            }
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                
+                if (e.type === "touchmove") {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                setTranslate(currentX, currentY, document.getElementById('pdfViewer'));
+            }
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+        }
+
+        // Event listeners for drag functionality
+        document.addEventListener('mousedown', dragStart, false);
+        document.addEventListener('mouseup', dragEnd, false);
+        document.addEventListener('mousemove', drag, false);
+
+        // Touch events for mobile
+        document.addEventListener('touchstart', dragStart, false);
+        document.addEventListener('touchend', dragEnd, false);
+        document.addEventListener('touchmove', drag, false);
 
         // Close info modal when clicking outside content
         document.getElementById('infoModal').addEventListener('click', function(e) {
@@ -466,7 +456,7 @@
             // Check if click is outside PDF viewer and not on a project item
             if (!viewer.contains(e.target) && 
                 !Array.from(projectItems).some(item => item.contains(e.target)) &&
-                !e.target.classList.contains('info')) {
+                !e.target.classList.contains('about')) {
                 closePDF();
             }
         });
