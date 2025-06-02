@@ -298,8 +298,8 @@
             viewer.id = viewerId;
             viewer.style.zIndex = ++highestZIndex;
             
-            // Random initial position to avoid overlap
-            const randomX = Math.random() * 200;
+            // Random initial position - shifted left to stay on screen
+            const randomX = -(Math.random() * 150);
             const randomY = Math.random() * 100;
             viewer.style.transform = `translate3d(${randomX}px, ${randomY}px, 0)`;
             
@@ -339,8 +339,8 @@
             viewer.id = viewerId;
             viewer.style.zIndex = ++highestZIndex;
             
-            // Random initial position to avoid overlap
-            const randomX = Math.random() * 200;
+            // Random initial position - shifted left to stay on screen
+            const randomX = -(Math.random() * 150);
             const randomY = Math.random() * 100;
             viewer.style.transform = `translate3d(${randomX}px, ${randomY}px, 0)`;
             
