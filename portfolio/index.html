@@ -468,33 +468,26 @@
                 </div>`;
             }
             
-            // For iPads, try multiple embedding approaches
+            // For iPads - use simple iframe approach that forces full PDF loading
             if (device.isIPad) {
-                // First try: Object embed with explicit PDF type and fallbacks
-                return `<div class="pdf-container" style="width:100%;height:100%;overflow:auto;-webkit-overflow-scrolling:touch;">
-                    <object data="${pdfPath}" type="application/pdf" width="100%" height="100%" style="min-height:100vh;">
-                        <embed src="${pdfPath}" type="application/pdf" width="100%" height="100%" style="min-height:100vh;" />
-                        <iframe src="${pdfPath}#toolbar=1&navpanes=1&scrollbar=1&page=1&zoom=page-width" 
-                                width="100%" height="100%" style="min-height:100vh;border:none;" 
-                                allow="fullscreen" 
-                                sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-downloads">
-                        </iframe>
-                    </object>
-                </div>`;
+                return `<iframe src="${pdfPath}" 
+                               style="width:100%;height:100%;border:none;" 
+                               frameborder="0"
+                               allowfullscreen>
+                        </iframe>`;
             }
             
-            // For Android tablets, try object embed first, then iframe
+            // For Android tablets
             if (device.isAndroidTablet) {
-                return `<div class="pdf-embed-container">
-                    <object data="${pdfPath}" type="application/pdf" style="width:100%;min-height:150vh;">
-                        <embed src="${pdfPath}" type="application/pdf" style="width:100%;min-height:150vh;" />
-                        <iframe src="${pdfPath}#toolbar=1&navpanes=1&scrollbar=1" style="width:100%;min-height:150vh;border:none;"></iframe>
-                    </object>
-                </div>`;
+                return `<iframe src="${pdfPath}" 
+                               style="width:100%;height:100%;border:none;" 
+                               frameborder="0"
+                               allowfullscreen>
+                        </iframe>`;
             }
             
             // For desktop, use standard iframe
-            return `<iframe src="${pdfPath}#toolbar=1&navpanes=1&scrollbar=1" style="width:100%;height:100%;border:none;"></iframe>`;
+            return `<iframe src="${pdfPath}" style="width:100%;height:100%;border:none;"></iframe>`;
         }
 
         // Enhanced touch/click handling
@@ -558,11 +551,6 @@
             
             const pdfContent = createPDFEmbed(pdfPath);
             
-            // Debug info - remove this after testing
-            console.log('Opening PDF:', pdfPath);
-            console.log('Device type:', getDeviceType());
-            console.log('PDF content HTML:', pdfContent);
-            
             viewer.innerHTML = `
                 <div class="drag-handle" data-viewer="${viewerId}"></div>
                 <button class="pdf-close" onclick="closePDF('${projectName}')">×</button>
@@ -570,17 +558,6 @@
             `;
             
             document.body.appendChild(viewer);
-            
-            // Add load event listeners to debug
-            const pdfElements = viewer.querySelectorAll('iframe, object, embed');
-            pdfElements.forEach((element, index) => {
-                element.addEventListener('load', () => {
-                    console.log(`PDF element ${index} loaded successfully`);
-                });
-                element.addEventListener('error', (e) => {
-                    console.log(`PDF element ${index} failed to load:`, e);
-                });
-            });
             
             openPDFs[projectName] = {
                 viewerId: viewerId,
