@@ -429,7 +429,97 @@
         </header>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
+        // PDF.js setup
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // Store PDF documents and current pages
+        let pdfDocs = {};
+        let currentPages = {};
+        let currentScales = {};
+
+        // Load PDF in viewer
+        async function loadPDFInViewer(viewerId, pdfPath) {
+            try {
+                const loadingTask = pdfjsLib.getDocument(pdfPath);
+                const pdf = await loadingTask.promise;
+                
+                pdfDocs[viewerId] = pdf;
+                currentPages[viewerId] = 1;
+                currentScales[viewerId] = 1.0;
+                
+                // Update page info
+                document.getElementById(viewerId + '_pageInfo').textContent = `1 / ${pdf.numPages}`;
+                
+                // Render first page
+                renderPage(viewerId, 1);
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                // Fallback to iframe if PDF.js fails
+                const container = document.getElementById(viewerId);
+                container.innerHTML = `<iframe src="${pdfPath}" style="width:100%;height:100%;border:none;"></iframe>`;
+            }
+        }
+
+        // Render specific page
+        async function renderPage(viewerId, pageNum) {
+            const pdf = pdfDocs[viewerId];
+            if (!pdf) return;
+            
+            const page = await pdf.getPage(pageNum);
+            const canvas = document.getElementById(viewerId + '_canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate scale to fit container
+            const container = document.getElementById(viewerId);
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight - 60; // Account for controls
+            
+            const viewport = page.getViewport({ scale: 1 });
+            const scale = Math.min(
+                (containerWidth / viewport.width) * currentScales[viewerId],
+                (containerHeight / viewport.height) * currentScales[viewerId]
+            );
+            
+            const scaledViewport = page.getViewport({ scale });
+            
+            canvas.width = scaledViewport.width;
+            canvas.height = scaledViewport.height;
+            canvas.style.maxWidth = '100%';
+            canvas.style.maxHeight = 'calc(100% - 60px)';
+            
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: scaledViewport
+            };
+            
+            await page.render(renderContext).promise;
+        }
+
+        // Change page
+        function changePage(viewerId, direction) {
+            const pdf = pdfDocs[viewerId];
+            if (!pdf) return;
+            
+            const newPage = currentPages[viewerId] + direction;
+            
+            if (newPage >= 1 && newPage <= pdf.numPages) {
+                currentPages[viewerId] = newPage;
+                document.getElementById(viewerId + '_pageInfo').textContent = `${newPage} / ${pdf.numPages}`;
+                renderPage(viewerId, newPage);
+            }
+        }
+
+        // Zoom PDF
+        function zoomPDF(viewerId, scaleChange) {
+            const newScale = currentScales[viewerId] + scaleChange;
+            if (newScale >= 0.5 && newScale <= 3.0) {
+                currentScales[viewerId] = newScale;
+                renderPage(viewerId, currentPages[viewerId]);
+            }
+        }
+
         let openPDFs = {};
         let dragData = {};
         let highestZIndex = 15;
@@ -454,40 +544,33 @@
             };
         }
 
-        // Create PDF embed with multiple fallback methods
+        // Create PDF embed using PDF.js for reliable cross-platform viewing
         function createPDFEmbed(pdfPath) {
             const device = getDeviceType();
             
-            // For devices that can't embed PDFs properly, show fallback
-            if (!device.canEmbedPDF) {
+            // For phones only, show fallback
+            if (device.isMobile && !device.isTablet) {
                 return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0f0f0;color:#333;text-align:center;padding:20px;">
                     <div>
-                        <p style="margin-bottom:20px;">PDF viewing on this device may require downloading.</p>
+                        <p style="margin-bottom:20px;">PDF viewing on mobile devices may require downloading.</p>
                         <a href="${pdfPath}" target="_blank" style="color:#000;text-decoration:underline;font-size:18px;">Open PDF in new tab</a>
                     </div>
                 </div>`;
             }
             
-            // For iPads - use simple iframe approach that forces full PDF loading
-            if (device.isIPad) {
-                return `<iframe src="${pdfPath}" 
-                               style="width:100%;height:100%;border:none;" 
-                               frameborder="0"
-                               allowfullscreen>
-                        </iframe>`;
-            }
-            
-            // For Android tablets
-            if (device.isAndroidTablet) {
-                return `<iframe src="${pdfPath}" 
-                               style="width:100%;height:100%;border:none;" 
-                               frameborder="0"
-                               allowfullscreen>
-                        </iframe>`;
-            }
-            
-            // For desktop, use standard iframe
-            return `<iframe src="${pdfPath}" style="width:100%;height:100%;border:none;"></iframe>`;
+            // For iPads, tablets, and desktop - use PDF.js viewer
+            const viewerId = 'pdf_' + Math.random().toString(36).substr(2, 9);
+            return `<div id="${viewerId}" style="width:100%;height:100%;position:relative;background:#525659;">
+                        <canvas id="${viewerId}_canvas" style="display:block;margin:0 auto;background:white;"></canvas>
+                        <div id="${viewerId}_controls" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);padding:8px;border-radius:4px;display:flex;gap:10px;align-items:center;">
+                            <button onclick="changePage('${viewerId}', -1)" style="background:white;border:none;padding:5px 10px;border-radius:3px;cursor:pointer;font-size:14px;">←</button>
+                            <span id="${viewerId}_pageInfo" style="color:white;font-size:14px;min-width:80px;text-align:center;">1 / 1</span>
+                            <button onclick="changePage('${viewerId}', 1)" style="background:white;border:none;padding:5px 10px;border-radius:3px;cursor:pointer;font-size:14px;">→</button>
+                            <button onclick="zoomPDF('${viewerId}', 0.1)" style="background:white;border:none;padding:5px 8px;border-radius:3px;cursor:pointer;font-size:14px;">+</button>
+                            <button onclick="zoomPDF('${viewerId}', -0.1)" style="background:white;border:none;padding:5px 8px;border-radius:3px;cursor:pointer;font-size:14px;">-</button>
+                        </div>
+                    </div>
+                    <script>loadPDFInViewer('${viewerId}', '${pdfPath}');</script>`;
         }
 
         // Enhanced touch/click handling
