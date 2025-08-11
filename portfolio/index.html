@@ -181,6 +181,46 @@
             pointer-events: none;
         }
 
+        /* iPad Safari PDF container */
+        .pdf-container {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #ffffff;
+        }
+
+        .pdf-container iframe {
+            width: 100%;
+            min-height: 100%;
+            height: auto;
+            border: none;
+            display: block;
+        }
+
+        /* Alternative PDF embed for problematic cases */
+        .pdf-embed-container {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pdf-embed-container embed {
+            width: 100%;
+            flex: 1;
+            min-height: 100%;
+        }
+
+        .pdf-embed-container object {
+            width: 100%;
+            flex: 1;
+            min-height: 100%;
+        }
+
         .about-content, .contact-content {
             width: 100%;
             height: 100%;
@@ -395,6 +435,63 @@
         let highestZIndex = 15;
         let isDragging = false;
 
+        // Enhanced device detection
+        function getDeviceType() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isIPad = /ipad/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const isIPhone = /iphone|ipod/.test(userAgent);
+            const isAndroidTablet = /android/.test(userAgent) && !/mobile/.test(userAgent);
+            const isAndroidPhone = /android/.test(userAgent) && /mobile/.test(userAgent);
+            
+            return {
+                isIPad: isIPad,
+                isIPhone: isIPhone,
+                isAndroidTablet: isAndroidTablet,
+                isAndroidPhone: isAndroidPhone,
+                isMobile: isIPhone || isAndroidPhone,
+                isTablet: isIPad || isAndroidTablet,
+                canEmbedPDF: isIPad || isAndroidTablet || (!isIPhone && !isAndroidPhone)
+            };
+        }
+
+        // Create PDF embed with multiple fallback methods
+        function createPDFEmbed(pdfPath) {
+            const device = getDeviceType();
+            
+            // For devices that can't embed PDFs properly, show fallback
+            if (!device.canEmbedPDF) {
+                return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0f0f0;color:#333;text-align:center;padding:20px;">
+                    <div>
+                        <p style="margin-bottom:20px;">PDF viewing on this device may require downloading.</p>
+                        <a href="${pdfPath}" target="_blank" style="color:#000;text-decoration:underline;font-size:18px;">Open PDF in new tab</a>
+                    </div>
+                </div>`;
+            }
+            
+            // For iPads and tablets, use enhanced iframe with better scrolling
+            if (device.isIPad) {
+                return `<div class="pdf-container">
+                    <iframe src="${pdfPath}#view=FitH&toolbar=1&navpanes=0&scrollbar=1" 
+                            style="width:100%;min-height:150vh;border:none;" 
+                            allow="fullscreen"
+                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
+                    </iframe>
+                </div>`;
+            }
+            
+            // For Android tablets, try object embed first, then iframe
+            if (device.isAndroidTablet) {
+                return `<div class="pdf-embed-container">
+                    <object data="${pdfPath}" type="application/pdf" style="width:100%;min-height:150vh;">
+                        <iframe src="${pdfPath}" style="width:100%;min-height:150vh;border:none;"></iframe>
+                    </object>
+                </div>`;
+            }
+            
+            // For desktop, use standard iframe
+            return `<iframe src="${pdfPath}" style="width:100%;height:100%;border:none;"></iframe>`;
+        }
+
         // Enhanced touch/click handling
         function handleAction(e) {
             e.preventDefault();
@@ -454,55 +551,7 @@
             const randomY = Math.random() * 50;
             viewer.style.transform = `translate3d(${randomX}px, ${randomY}px, 0)`;
             
-            // Improved PDF handling for all devices
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            let pdfContent;
-            
-            if (isIOS) {
-                // iOS devices - direct link approach works best
-                pdfContent = `
-                    <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;color:#000;text-align:center;padding:30px;font-family:inherit;">
-                        <div style="max-width:400px;">
-                            <h3 style="font-size:20px;font-weight:500;margin-bottom:20px;line-height:1.4;">${getProjectTitle(projectName)}</h3>
-                            <p style="margin-bottom:25px;font-size:16px;line-height:1.5;">Tap below to view the PDF:</p>
-                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:15px 25px;font-size:16px;font-weight:500;transition:all 0.3s ease;" 
-                               onmouseover="this.style.backgroundColor='#000';this.style.color='#fff';" 
-                               onmouseout="this.style.backgroundColor='#fff';this.style.color='#000';"
-                               ontouchstart="this.style.backgroundColor='#000';this.style.color='#fff';">
-                                Open PDF
-                            </a>
-                            <p style="margin-top:20px;font-size:14px;color:#666;line-height:1.4;">The PDF will open in a new tab or download to your device.</p>
-                        </div>
-                    </div>`;
-            } else if (isMobile) {
-                // Other mobile devices
-                pdfContent = `
-                    <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;color:#000;text-align:center;padding:30px;font-family:inherit;">
-                        <div style="max-width:400px;">
-                            <h3 style="font-size:18px;font-weight:500;margin-bottom:20px;line-height:1.4;">${getProjectTitle(projectName)}</h3>
-                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:12px 20px;font-size:16px;font-weight:500;margin-bottom:15px;" 
-                               onmouseover="this.style.backgroundColor='#000';this.style.color='#fff';" 
-                               onmouseout="this.style.backgroundColor='#fff';this.style.color='#000';">
-                                View PDF
-                            </a>
-                        </div>
-                    </div>`;
-            } else {
-                // Desktop - try iframe first with fallback
-                pdfContent = `
-                    <iframe src="${pdfPath}" style="width:100%;height:100%;border:none;" 
-                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    </iframe>
-                    <div style="width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;color:#000;text-align:center;padding:30px;font-family:inherit;">
-                        <div>
-                            <h3 style="font-size:20px;font-weight:500;margin-bottom:20px;">${getProjectTitle(projectName)}</h3>
-                            <p style="margin-bottom:20px;">Unable to display PDF in browser.</p>
-                            <a href="${pdfPath}" target="_blank" style="color:#000;text-decoration:underline;font-size:18px;">Open PDF in new tab</a>
-                        </div>
-                    </div>`;
-            }
+            const pdfContent = createPDFEmbed(pdfPath);
             
             viewer.innerHTML = `
                 <div class="drag-handle" data-viewer="${viewerId}"></div>
@@ -522,17 +571,6 @@
                 yOffset: randomY,
                 isDragging: false
             };
-        }
-        
-        function getProjectTitle(projectName) {
-            const titles = {
-                'stays': 'Stays and Femininity in the 18th Century',
-                'keffiyeh': 'The Keffiyeh and Colonial Legacies',
-                'tatreez': 'Tatreez and the Evolution of Resistance',
-                'meta': 'Meta Vaux Warrick Fuller - Ethiopia Awakening',
-                'roxanne': 'Roxanne Shanté LP Poster Zine'
-            };
-            return titles[projectName] || 'Essay';
         }
 
         function openAbout() {
