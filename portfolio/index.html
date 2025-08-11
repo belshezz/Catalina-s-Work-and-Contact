@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Fashion Portfolio</title>
     <style>
         @font-face {
@@ -16,6 +16,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -27,6 +31,11 @@
             font-size: 24px;
             height: 100vh;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            position: fixed;
+            width: 100%;
         }
 
         .container {
@@ -59,8 +68,7 @@
             text-align: justify;
         }
 
-        /* About section - directly under name */
-        .about {
+        .about, .contact {
             font-size: 24px;
             font-weight: 500;
             color: #000;
@@ -70,30 +78,18 @@
             display: block;
             margin-bottom: 2px;
             text-align: justify;
+            -webkit-tap-highlight-color: transparent;
+            tap-highlight-color: transparent;
         }
 
-        .about:hover {
+        .about:hover, .contact:hover {
             opacity: 0.7;
         }
 
-        /* Contact section - directly under about */
-        .contact {
-            font-size: 24px;
-            font-weight: 500;
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-            letter-spacing: 0;
-            display: block;
-            margin-bottom: 2px;
-            text-align: justify;
+        .about:active, .contact:active {
+            opacity: 0.5;
         }
 
-        .contact:hover {
-            opacity: 0.7;
-        }
-
-        /* Projects section - directly under about */
         .projects-section {
             margin-top: 0;
         }
@@ -111,17 +107,22 @@
             word-wrap: break-word;
             line-height: 1.3;
             text-align: justify;
+            -webkit-tap-highlight-color: transparent;
+            tap-highlight-color: transparent;
         }
 
         .project-item:hover {
             opacity: 0.6;
         }
 
+        .project-item:active {
+            opacity: 0.4;
+        }
+
         .project-item:visited {
             color: #000;
         }
 
-        /* PDF Viewer - with black border and white background */
         .pdf-viewer {
             position: fixed;
             top: 120px;
@@ -133,14 +134,18 @@
             background: #ffffff;
             border: 4px solid #000;
             overflow: hidden;
-            user-select: none;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .pdf-viewer.dragging {
             cursor: grabbing;
+            cursor: -webkit-grabbing;
         }
 
-        /* Invisible drag handle */
         .drag-handle {
             position: absolute;
             top: -15px;
@@ -148,8 +153,17 @@
             right: 0;
             height: 40px;
             cursor: move;
+            cursor: -webkit-grab;
+            cursor: grab;
             z-index: 30;
             background: transparent;
+            touch-action: none;
+            -webkit-touch-callout: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+            cursor: -webkit-grabbing;
         }
 
         .pdf-viewer iframe {
@@ -160,54 +174,41 @@
             margin: 0;
             padding: 0;
             pointer-events: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .pdf-viewer.dragging iframe {
             pointer-events: none;
         }
 
-        /* About content styling inside the draggable box */
-        .about-content {
+        .about-content, .contact-content {
             width: 100%;
             height: 100%;
             padding: 40px;
             background: #ffffff;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             display: flex;
             flex-direction: column;
             justify-content: center;
+        }
+
+        .about-content {
             text-align: justify;
         }
 
-        .about-content p {
-            font-size: 24px;
-            font-weight: 500;
-            line-height: 1.6;
-            letter-spacing: 0;
-            color: #000;
-            text-align: justify;
-        }
-
-        /* Contact content styling inside the draggable box */
         .contact-content {
-            width: 100%;
-            height: 100%;
-            padding: 40px;
-            background: #ffffff;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
             text-align: center;
         }
 
-        .contact-content p {
+        .about-content p, .contact-content p {
             font-size: 24px;
             font-weight: 500;
             line-height: 1.6;
             letter-spacing: 0;
             color: #000;
             margin-bottom: 10px;
+            text-align: inherit;
         }
 
         .contact-content a {
@@ -220,57 +221,50 @@
             margin-bottom: 10px;
             display: block;
             transition: opacity 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .contact-content a:hover {
+        .contact-content a:hover, .contact-content a:active {
             opacity: 0.6;
         }
 
-        /* Minimal close button - black X (for about box) */
+        .close-pdf, .pdf-close {
+            position: absolute;
+            top: 35px;
+            right: 10px;
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: normal;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
         .close-pdf {
-            position: absolute;
-            top: 35px;
-            right: 10px;
-            background: none;
-            border: none;
-            width: 20px;
-            height: 20px;
-            font-size: 24px;
-            cursor: pointer;
             color: #000000;
-            z-index: 35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: normal;
         }
 
-        /* White X button for PDF viewers */
         .pdf-close {
-            position: absolute;
-            top: 35px;
-            right: 10px;
-            background: none;
-            border: none;
-            width: 20px;
-            height: 20px;
-            font-size: 24px;
-            cursor: pointer;
             color: #ffffff;
-            z-index: 35;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: normal;
         }
 
-        /* Show PDF viewer when active */
         .pdf-viewer.active {
             display: block;
         }
 
-        /* Responsive Design */
+        /* Enhanced mobile/tablet styles */
         @media (max-width: 1024px) {
+            body {
+                font-size: 20px;
+            }
+            
             .container {
                 padding: 30px;
             }
@@ -278,18 +272,48 @@
             header {
                 top: 30px;
                 left: 30px;
-                width: calc(33.33vw - 60px);
-                max-width: calc(33.33vw - 60px);
+                width: calc(50vw - 60px);
+                max-width: calc(50vw - 60px);
+            }
+
+            .logo, .about, .contact, .project-item {
+                font-size: 20px;
             }
 
             .pdf-viewer {
-                width: min(400px, 70vw);
+                width: min(500px, 75vw);
                 top: 100px;
                 right: 30px;
+                height: calc(100vh - 160px);
+            }
+
+            .about-content, .contact-content {
+                padding: 30px;
+            }
+
+            .about-content p, .contact-content p, .contact-content a {
+                font-size: 18px;
+            }
+
+            .drag-handle {
+                height: 50px;
+                top: -20px;
+            }
+
+            .close-pdf, .pdf-close {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                top: 30px;
+                right: 5px;
             }
         }
 
         @media (max-width: 768px) {
+            body {
+                font-size: 18px;
+            }
+            
             .container {
                 padding: 20px;
             }
@@ -297,16 +321,30 @@
             header {
                 top: 20px;
                 left: 20px;
-                width: calc(50vw - 40px);
-                max-width: calc(50vw - 40px);
+                width: calc(60vw - 40px);
+                max-width: calc(60vw - 40px);
+            }
+
+            .logo, .about, .contact, .project-item {
+                font-size: 18px;
+                line-height: 1.4;
             }
 
             .pdf-viewer {
                 top: 80px;
                 right: 20px;
                 left: 20px;
-                width: auto;
+                width: calc(100vw - 40px);
                 height: calc(100vh - 140px);
+            }
+
+            .about-content, .contact-content {
+                padding: 25px;
+            }
+
+            .about-content p, .contact-content p, .contact-content a {
+                font-size: 16px;
+                line-height: 1.5;
             }
         }
 
@@ -316,21 +354,37 @@
                 max-width: calc(100vw - 40px);
             }
         }
+
+        /* iPad specific fixes */
+        @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+            body {
+                -webkit-text-size-adjust: none;
+            }
+            
+            .pdf-viewer iframe {
+                -webkit-overflow-scrolling: auto;
+            }
+            
+            .drag-handle {
+                height: 60px;
+                top: -25px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <a href="#" class="logo">Catalina Chaverra Brown</a>
-            <a href="#" class="about" onclick="openAbout()">About</a>
-            <a href="#" class="contact" onclick="openContact()">Contact</a>
+            <a href="#" class="about" data-action="about">About</a>
+            <a href="#" class="contact" data-action="contact">Contact</a>
             
             <div class="projects-section">
-                <a href="#" class="project-item" onclick="openPDF('essays/stays-and-femininity.pdf', 'stays'); return false;">01 — How did stays construct the idea of femininity in the 18th century?</a>
-                <a href="#" class="project-item" onclick="openPDF('essays/keffiyeh.pdf', 'keffiyeh'); return false;">02 — How has the keffiyeh responded to the legacies of colonialism, in the 20th and 21st centuries?</a>
-                <a href="#" class="project-item" onclick="openPDF('essays/tatreez.pdf', 'tatreez'); return false;">03 — Tatreez and the evolution of resistance</a>
-                <a href="#" class="project-item" onclick="openPDF('essays/meta-vaux-warwick-fuller.pdf', 'meta'); return false;">04 — During the Harlem Renaissance, how did Meta Vaux Warrick Fuller's 'Ethiopia Awakening' (1921) challenge Eurocentric beauty ideals for African American women?</a>
-                <a href="#" class="project-item" onclick="openPDF('essays/roxanne-shante.pdf', 'roxanne'); return false;">05 — Roxanne Shanté 12" LP Poster Zine</a>
+                <a href="#" class="project-item" data-pdf="essays/stays-and-femininity.pdf" data-project="stays">01 — How did stays construct the idea of femininity in the 18th century?</a>
+                <a href="#" class="project-item" data-pdf="essays/keffiyeh.pdf" data-project="keffiyeh">02 — How has the keffiyeh responded to the legacies of colonialism, in the 20th and 21st centuries?</a>
+                <a href="#" class="project-item" data-pdf="essays/tatreez.pdf" data-project="tatreez">03 — Tatreez and the evolution of resistance</a>
+                <a href="#" class="project-item" data-pdf="essays/meta-vaux-warwick-fuller.pdf" data-project="meta">04 — During the Harlem Renaissance, how did Meta Vaux Warrick Fuller's 'Ethiopia Awakening' (1921) challenge Eurocentric beauty ideals for African American women?</a>
+                <a href="#" class="project-item" data-pdf="essays/roxanne-shante.pdf" data-project="roxanne">05 — Roxanne Shanté 12" LP Poster Zine</a>
             </div>
         </header>
     </div>
@@ -339,65 +393,162 @@
         let openPDFs = {};
         let dragData = {};
         let highestZIndex = 15;
+        let isDragging = false;
+
+        // Enhanced touch/click handling
+        function handleAction(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (isDragging) return;
+            
+            const target = e.currentTarget;
+            const action = target.dataset.action;
+            const pdfPath = target.dataset.pdf;
+            const projectName = target.dataset.project;
+            
+            if (action === 'about') {
+                openAbout();
+            } else if (action === 'contact') {
+                openContact();
+            } else if (pdfPath && projectName) {
+                openPDF(pdfPath, projectName);
+            }
+        }
+
+        // Add event listeners to all interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const aboutBtn = document.querySelector('[data-action="about"]');
+            const contactBtn = document.querySelector('[data-action="contact"]');
+            const projectItems = document.querySelectorAll('.project-item');
+            
+            if (aboutBtn) {
+                aboutBtn.addEventListener('click', handleAction);
+                aboutBtn.addEventListener('touchend', handleAction);
+            }
+            
+            if (contactBtn) {
+                contactBtn.addEventListener('click', handleAction);
+                contactBtn.addEventListener('touchend', handleAction);
+            }
+            
+            projectItems.forEach(item => {
+                item.addEventListener('click', handleAction);
+                item.addEventListener('touchend', handleAction);
+            });
+        });
 
         function openPDF(pdfPath, projectName) {
-            // If this PDF is already open, close it (toggle functionality)
             if (openPDFs[projectName]) {
                 closePDF(projectName);
                 return;
             }
 
-            // Create unique viewer for this PDF
             const viewerId = 'pdfViewer_' + projectName.replace(/\s+/g, '_');
             const viewer = document.createElement('div');
             viewer.className = 'pdf-viewer active';
             viewer.id = viewerId;
             viewer.style.zIndex = ++highestZIndex;
             
-            // Random initial position - shifted left to stay on screen
-            const randomX = -(Math.random() * 150);
-            const randomY = Math.random() * 100;
+            const randomX = -(Math.random() * 100);
+            const randomY = Math.random() * 50;
             viewer.style.transform = `translate3d(${randomX}px, ${randomY}px, 0)`;
+            
+            // Improved PDF handling for all devices
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            let pdfContent;
+            
+            if (isIOS) {
+                // iOS devices - direct link approach works best
+                pdfContent = `
+                    <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;color:#000;text-align:center;padding:30px;font-family:inherit;">
+                        <div style="max-width:400px;">
+                            <h3 style="font-size:20px;font-weight:500;margin-bottom:20px;line-height:1.4;">${getProjectTitle(projectName)}</h3>
+                            <p style="margin-bottom:25px;font-size:16px;line-height:1.5;">Tap below to view the PDF:</p>
+                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:15px 25px;font-size:16px;font-weight:500;transition:all 0.3s ease;" 
+                               onmouseover="this.style.backgroundColor='#000';this.style.color='#fff';" 
+                               onmouseout="this.style.backgroundColor='#fff';this.style.color='#000';"
+                               ontouchstart="this.style.backgroundColor='#000';this.style.color='#fff';">
+                                Open PDF
+                            </a>
+                            <p style="margin-top:20px;font-size:14px;color:#666;line-height:1.4;">The PDF will open in a new tab or download to your device.</p>
+                        </div>
+                    </div>`;
+            } else if (isMobile) {
+                // Other mobile devices
+                pdfContent = `
+                    <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;color:#000;text-align:center;padding:30px;font-family:inherit;">
+                        <div style="max-width:400px;">
+                            <h3 style="font-size:18px;font-weight:500;margin-bottom:20px;line-height:1.4;">${getProjectTitle(projectName)}</h3>
+                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:12px 20px;font-size:16px;font-weight:500;margin-bottom:15px;" 
+                               onmouseover="this.style.backgroundColor='#000';this.style.color='#fff';" 
+                               onmouseout="this.style.backgroundColor='#fff';this.style.color='#000';">
+                                View PDF
+                            </a>
+                        </div>
+                    </div>`;
+            } else {
+                // Desktop - try iframe first with fallback
+                pdfContent = `
+                    <iframe src="${pdfPath}" style="width:100%;height:100%;border:none;" 
+                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    </iframe>
+                    <div style="width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;color:#000;text-align:center;padding:30px;font-family:inherit;">
+                        <div>
+                            <h3 style="font-size:20px;font-weight:500;margin-bottom:20px;">${getProjectTitle(projectName)}</h3>
+                            <p style="margin-bottom:20px;">Unable to display PDF in browser.</p>
+                            <a href="${pdfPath}" target="_blank" style="color:#000;text-decoration:underline;font-size:18px;">Open PDF in new tab</a>
+                        </div>
+                    </div>`;
+            }
             
             viewer.innerHTML = `
                 <div class="drag-handle" data-viewer="${viewerId}"></div>
                 <button class="pdf-close" onclick="closePDF('${projectName}')">×</button>
-                <iframe src="${pdfPath}"></iframe>
+                ${pdfContent}
             `;
             
             document.body.appendChild(viewer);
             
-            // Track this PDF
             openPDFs[projectName] = {
                 viewerId: viewerId,
                 element: viewer
             };
             
-            // Initialize drag data
             dragData[viewerId] = {
                 xOffset: randomX,
                 yOffset: randomY,
                 isDragging: false
             };
         }
+        
+        function getProjectTitle(projectName) {
+            const titles = {
+                'stays': 'Stays and Femininity in the 18th Century',
+                'keffiyeh': 'The Keffiyeh and Colonial Legacies',
+                'tatreez': 'Tatreez and the Evolution of Resistance',
+                'meta': 'Meta Vaux Warrick Fuller - Ethiopia Awakening',
+                'roxanne': 'Roxanne Shanté LP Poster Zine'
+            };
+            return titles[projectName] || 'Essay';
+        }
 
         function openAbout() {
-            // If about is already open, close it (toggle functionality)
             if (openPDFs['about']) {
                 closePDF('about');
                 return;
             }
 
-            // Create unique viewer for about section
             const viewerId = 'aboutViewer';
             const viewer = document.createElement('div');
             viewer.className = 'pdf-viewer active';
             viewer.id = viewerId;
             viewer.style.zIndex = ++highestZIndex;
             
-            // Random initial position - shifted left to stay on screen
-            const randomX = -(Math.random() * 150);
-            const randomY = Math.random() * 100;
+            const randomX = -(Math.random() * 100);
+            const randomY = Math.random() * 50;
             viewer.style.transform = `translate3d(${randomX}px, ${randomY}px, 0)`;
             
             viewer.innerHTML = `
@@ -410,13 +561,11 @@
             
             document.body.appendChild(viewer);
             
-            // Track this about box
             openPDFs['about'] = {
                 viewerId: viewerId,
                 element: viewer
             };
             
-            // Initialize drag data
             dragData[viewerId] = {
                 xOffset: randomX,
                 yOffset: randomY,
@@ -425,24 +574,21 @@
         }
 
         function openContact() {
-            // If contact is already open, close it (toggle functionality)
             if (openPDFs['contact']) {
                 closePDF('contact');
                 return;
             }
 
-            // Create unique viewer for contact section
             const viewerId = 'contactViewer';
             const viewer = document.createElement('div');
             viewer.className = 'pdf-viewer active';
             viewer.id = viewerId;
             viewer.style.zIndex = ++highestZIndex;
-            viewer.style.width = 'min(500px, 45vw)';
+            viewer.style.width = 'min(500px, 80vw)';
             viewer.style.height = '200px';
             
-            // Random initial position - shifted left to stay on screen
-            const randomX = -(Math.random() * 150);
-            const randomY = Math.random() * 100;
+            const randomX = -(Math.random() * 100);
+            const randomY = Math.random() * 50;
             viewer.style.transform = `translate3d(${randomX}px, ${randomY}px, 0)`;
             
             viewer.innerHTML = `
@@ -456,13 +602,11 @@
             
             document.body.appendChild(viewer);
             
-            // Track this contact box
             openPDFs['contact'] = {
                 viewerId: viewerId,
                 element: viewer
             };
             
-            // Initialize drag data
             dragData[viewerId] = {
                 xOffset: randomX,
                 yOffset: randomY,
@@ -480,52 +624,52 @@
             }
         }
 
-        function bringToFront(projectName) {
-            if (openPDFs[projectName]) {
-                openPDFs[projectName].element.style.zIndex = ++highestZIndex;
-            }
-        }
-
-        // Enhanced drag functionality for multiple PDFs, about box, and contact box
+        // Enhanced drag functionality with better touch support
         function dragStart(e) {
             const dragHandle = e.target;
             if (!dragHandle.classList.contains('drag-handle')) return;
             
+            e.preventDefault();
+            e.stopPropagation();
+            
             const viewerId = dragHandle.dataset.viewer;
             if (!dragData[viewerId]) return;
             
-            e.preventDefault();
-            
-            // Bring this box to front
             const viewer = document.getElementById(viewerId);
             viewer.style.zIndex = ++highestZIndex;
             
             const data = dragData[viewerId];
             
+            let clientX, clientY;
             if (e.type === "touchstart") {
-                data.initialX = e.touches[0].clientX - data.xOffset;
-                data.initialY = e.touches[0].clientY - data.yOffset;
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
             } else {
-                data.initialX = e.clientX - data.xOffset;
-                data.initialY = e.clientY - data.yOffset;
+                clientX = e.clientX;
+                clientY = e.clientY;
             }
-
+            
+            data.initialX = clientX - data.xOffset;
+            data.initialY = clientY - data.yOffset;
             data.isDragging = true;
             data.currentViewerId = viewerId;
+            
+            isDragging = true;
             viewer.classList.add('dragging');
         }
 
         function dragEnd(e) {
             Object.values(dragData).forEach(data => {
                 if (data.isDragging) {
-                    data.initialX = data.currentX;
-                    data.initialY = data.currentY;
                     data.isDragging = false;
-                    
                     const viewer = document.getElementById(data.currentViewerId);
                     if (viewer) viewer.classList.remove('dragging');
                 }
             });
+            
+            setTimeout(() => {
+                isDragging = false;
+            }, 100);
         }
 
         function drag(e) {
@@ -533,15 +677,19 @@
             if (!activeData) return;
             
             e.preventDefault();
+            e.stopPropagation();
             
+            let clientX, clientY;
             if (e.type === "touchmove") {
-                activeData.currentX = e.touches[0].clientX - activeData.initialX;
-                activeData.currentY = e.touches[0].clientY - activeData.initialY;
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
             } else {
-                activeData.currentX = e.clientX - activeData.initialX;
-                activeData.currentY = e.clientY - activeData.initialY;
+                clientX = e.clientX;
+                clientY = e.clientY;
             }
-
+            
+            activeData.currentX = clientX - activeData.initialX;
+            activeData.currentY = clientY - activeData.initialY;
             activeData.xOffset = activeData.currentX;
             activeData.yOffset = activeData.currentY;
 
@@ -551,31 +699,44 @@
             }
         }
 
-        // Event listeners for drag functionality
-        document.addEventListener('mousedown', dragStart, false);
-        document.addEventListener('mouseup', dragEnd, false);
-        document.addEventListener('mousemove', drag, false);
+        // Event listeners with improved touch handling
+        document.addEventListener('mousedown', dragStart, { passive: false });
+        document.addEventListener('mouseup', dragEnd, { passive: false });
+        document.addEventListener('mousemove', drag, { passive: false });
 
-        // Touch events for mobile
-        document.addEventListener('touchstart', dragStart, false);
-        document.addEventListener('touchend', dragEnd, false);
-        document.addEventListener('touchmove', drag, false);
+        document.addEventListener('touchstart', dragStart, { passive: false });
+        document.addEventListener('touchend', dragEnd, { passive: false });
+        document.addEventListener('touchmove', drag, { passive: false });
 
-        // Close PDFs, about box, and contact box with Escape key (closes most recent) or Shift+Esc (closes all)
+        // Prevent default touch behaviors that might interfere
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.classList.contains('drag-handle')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const openPdfNames = Object.keys(openPDFs);
                 if (openPdfNames.length > 0) {
                     if (e.shiftKey) {
-                        // Close all PDFs, about box, and contact box
                         openPdfNames.forEach(name => closePDF(name));
                     } else {
-                        // Close most recent PDF, about box, or contact box
                         closePDF(openPdfNames[openPdfNames.length - 1]);
                     }
                 }
             }
         });
+
+        // Prevent zooming on double tap (iOS Safari)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
