@@ -459,6 +459,12 @@
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             let pdfContent;
+            let dragHandle = '';
+            
+            // Only add drag handle on desktop
+            if (!isMobile) {
+                dragHandle = `<div class="drag-handle" data-viewer="${viewerId}"></div>`;
+            }
             
             if (isIOS) {
                 // iOS devices - direct link approach works best
@@ -467,13 +473,14 @@
                         <div style="max-width:400px;">
                             <h3 style="font-size:20px;font-weight:500;margin-bottom:20px;line-height:1.4;">${getProjectTitle(projectName)}</h3>
                             <p style="margin-bottom:25px;font-size:16px;line-height:1.5;">Tap below to view the PDF:</p>
-                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:15px 25px;font-size:16px;font-weight:500;transition:all 0.3s ease;" 
+                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:15px 25px;font-size:16px;font-weight:500;transition:all 0.3s ease;-webkit-tap-highlight-color: transparent;" 
                                onmouseover="this.style.backgroundColor='#000';this.style.color='#fff';" 
                                onmouseout="this.style.backgroundColor='#fff';this.style.color='#000';"
-                               ontouchstart="this.style.backgroundColor='#000';this.style.color='#fff';">
+                               ontouchstart="this.style.backgroundColor='#000';this.style.color='#fff';"
+                               ontouchend="this.style.backgroundColor='#fff';this.style.color='#000';">
                                 Open PDF
                             </a>
-                            <p style="margin-top:20px;font-size:14px;color:#666;line-height:1.4;">The PDF will open in a new tab or download to your device.</p>
+                            <p style="margin-top:20px;font-size:14px;color:#666;line-height:1.4;">The PDF will open in Safari where you can scroll, zoom, and navigate normally.</p>
                         </div>
                     </div>`;
             } else if (isMobile) {
@@ -482,7 +489,7 @@
                     <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#ffffff;color:#000;text-align:center;padding:30px;font-family:inherit;">
                         <div style="max-width:400px;">
                             <h3 style="font-size:18px;font-weight:500;margin-bottom:20px;line-height:1.4;">${getProjectTitle(projectName)}</h3>
-                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:12px 20px;font-size:16px;font-weight:500;margin-bottom:15px;" 
+                            <a href="${pdfPath}" target="_blank" style="display:inline-block;color:#000;text-decoration:none;border:2px solid #000;padding:12px 20px;font-size:16px;font-weight:500;margin-bottom:15px;-webkit-tap-highlight-color: transparent;" 
                                onmouseover="this.style.backgroundColor='#000';this.style.color='#fff';" 
                                onmouseout="this.style.backgroundColor='#fff';this.style.color='#000';">
                                 View PDF
@@ -505,7 +512,7 @@
             }
             
             viewer.innerHTML = `
-                <div class="drag-handle" data-viewer="${viewerId}"></div>
+                ${dragHandle}
                 <button class="pdf-close" onclick="closePDF('${projectName}')">×</button>
                 ${pdfContent}
             `;
@@ -517,11 +524,14 @@
                 element: viewer
             };
             
-            dragData[viewerId] = {
-                xOffset: randomX,
-                yOffset: randomY,
-                isDragging: false
-            };
+            // Only add drag data for desktop
+            if (!isMobile) {
+                dragData[viewerId] = {
+                    xOffset: randomX,
+                    yOffset: randomY,
+                    isDragging: false
+                };
+            }
         }
         
         function getProjectTitle(projectName) {
@@ -629,13 +639,22 @@
             const dragHandle = e.target;
             if (!dragHandle.classList.contains('drag-handle')) return;
             
+            // Don't prevent default on mobile for PDF content areas
+            const viewer = document.getElementById(dragHandle.dataset.viewer);
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile && viewer && viewer.querySelector('iframe')) {
+                // Don't interfere with PDF scrolling on mobile
+                return;
+            }
+            
             e.preventDefault();
             e.stopPropagation();
             
             const viewerId = dragHandle.dataset.viewer;
             if (!dragData[viewerId]) return;
             
-            const viewer = document.getElementById(viewerId);
             viewer.style.zIndex = ++highestZIndex;
             
             const data = dragData[viewerId];
@@ -699,19 +718,47 @@
             }
         }
 
-        // Event listeners with improved touch handling
-        document.addEventListener('mousedown', dragStart, { passive: false });
-        document.addEventListener('mouseup', dragEnd, { passive: false });
-        document.addEventListener('mousemove', drag, { passive: false });
+        // Detect mobile devices
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        document.addEventListener('touchstart', dragStart, { passive: false });
-        document.addEventListener('touchend', dragEnd, { passive: false });
-        document.addEventListener('touchmove', drag, { passive: false });
+        // Event listeners with conditional mobile handling
+        if (!isMobileDevice) {
+            // Desktop: Full drag functionality
+            document.addEventListener('mousedown', dragStart, { passive: false });
+            document.addEventListener('mouseup', dragEnd, { passive: false });
+            document.addEventListener('mousemove', drag, { passive: false });
+        } else {
+            // Mobile: Limited drag functionality to avoid conflicts
+            document.addEventListener('mousedown', dragStart, { passive: false });
+            document.addEventListener('mouseup', dragEnd, { passive: false });
+            document.addEventListener('mousemove', drag, { passive: false });
+        }
 
-        // Prevent default touch behaviors that might interfere
+        // Touch events only for about/contact boxes (not PDF viewers)
         document.addEventListener('touchstart', function(e) {
             if (e.target.classList.contains('drag-handle')) {
-                e.preventDefault();
+                const viewerId = e.target.dataset.viewer;
+                const viewer = document.getElementById(viewerId);
+                
+                // Only allow dragging for about/contact boxes on mobile
+                if (viewer && (viewerId.includes('about') || viewerId.includes('contact'))) {
+                    dragStart(e);
+                }
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            dragEnd(e);
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            const activeData = Object.values(dragData).find(data => data.isDragging);
+            if (activeData) {
+                const viewer = document.getElementById(activeData.currentViewerId);
+                // Only prevent default for about/contact boxes
+                if (viewer && (activeData.currentViewerId.includes('about') || activeData.currentViewerId.includes('contact'))) {
+                    drag(e);
+                }
             }
         }, { passive: false });
 
