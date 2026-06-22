@@ -378,32 +378,39 @@
 
 function renderPDFPage(pdf, pageNum, canvas, windowId) {
     pdf.getPage(pageNum).then(function(page) {
-        const containerWidth = document.getElementById(windowId).querySelector('.pdf-viewer').clientWidth - 20;
-        const viewport = page.getViewport({ scale: 1 });
+        const viewer = document.getElementById(windowId);
+        const pdfViewer = viewer.querySelector('.pdf-viewer');
+        const isFullscreen = viewer.classList.contains('fullscreen');
         
-        // Higher scale for mobile to improve resolution
-        const isMobile = window.innerWidth < 768;
-        const baseScale = isMobile ? 2 : 1.5;
-        const scale = (containerWidth / viewport.width) * baseScale;
-        const scaledViewport = page.getViewport({ scale: scale });
+        let containerWidth = pdfViewer.clientWidth - 20;
+        let scale = 1.5;
+        
+        if (isFullscreen) {
+            // Fit entire page in fullscreen
+            const containerHeight = pdfViewer.clientHeight - 20;
+            const viewport = page.getViewport({ scale: 1 });
+            const widthScale = containerWidth / viewport.width;
+            const heightScale = containerHeight / viewport.height;
+            scale = Math.min(widthScale, heightScale);
+        } else {
+            // Normal window mode
+            const isMobile = window.innerWidth < 768;
+            const baseScale = isMobile ? 2 : 1.5;
+            const viewport = page.getViewport({ scale: 1 });
+            scale = (containerWidth / viewport.width) * baseScale;
+        }
 
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
+        const viewport = page.getViewport({ scale: scale });
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
 
         const renderContext = {
             canvasContext: canvas.getContext('2d'),
-            viewport: scaledViewport
+            viewport: viewport
         };
 
         page.render(renderContext);
         addCanvasZoom(canvas, windowId);
-        
-        // Auto-fit window height to content
-        const viewer = document.getElementById(windowId);
-        const headerHeight = viewer.querySelector('.window-header').offsetHeight;
-        const controlsHeight = viewer.querySelector('.pdf-controls') ? viewer.querySelector('.pdf-controls').offsetHeight : 0;
-        const newHeight = canvas.height + headerHeight + controlsHeight + 20;
-        viewer.style.height = Math.min(newHeight, window.innerHeight * 0.9) + 'px';
     });
 }
         function addCanvasZoom(canvas, windowId) {
@@ -541,9 +548,18 @@ function renderPDFPage(pdf, pageNum, canvas, windowId) {
         }
 
         function toggleFullscreen(windowId) {
-            const viewer = document.getElementById(windowId);
-            viewer.classList.toggle('fullscreen');
+    const viewer = document.getElementById(windowId);
+    viewer.classList.toggle('fullscreen');
+    
+    // Re-render PDF at correct scale for fullscreen
+    setTimeout(() => {
+        const instance = pdfInstances[windowId];
+        if (instance) {
+            const canvas = document.getElementById('pdf-canvas-' + windowId);
+            renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
         }
+    }, 100);
+}
 
         function openContact() {
             const windowId = 'contact-' + Math.random().toString(36).substr(2, 9);
