@@ -472,8 +472,14 @@
             const randomY = Math.random() * 100 + 20;
             viewer.style.left = randomX + 'px';
             viewer.style.top = randomY + 'px';
-            viewer.style.width = '600px';
-            viewer.style.height = '700px';
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                viewer.style.width = '90vw';
+                viewer.style.height = '80vh';
+            } else {
+                viewer.style.width = '600px';
+                viewer.style.height = '700px';
+            }
             
             viewer.innerHTML = `
                 <div class="window-header">
@@ -620,6 +626,8 @@
                 startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
                 element.style.zIndex = ++highestZIndex;
 
+                document.body.style.overflow = 'hidden';
+
                 document.addEventListener('mousemove', drag);
                 document.addEventListener('touchmove', drag, { passive: false });
                 document.addEventListener('mouseup', dragEnd);
@@ -644,6 +652,7 @@
 
             function dragEnd() {
                 isDragging = false;
+                document.body.style.overflow = 'auto';
                 document.removeEventListener('mousemove', drag);
                 document.removeEventListener('touchmove', drag);
                 document.removeEventListener('mouseup', dragEnd);
