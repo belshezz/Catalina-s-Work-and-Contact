@@ -586,50 +586,102 @@ function renderPDFPage(pdf, pageNum, canvas, windowId) {
             }
         }
 
-        function setupDrag(element, windowId) {
-            const header = element.querySelector('.window-header');
-            let startX, startY;
-            let isDragging = false;
+       function setupDrag(element, windowId) {
+    const header = element.querySelector('.window-header');
+    let startX, startY;
+    let isDragging = false;
 
-            header.addEventListener('mousedown', dragStart);
-            header.addEventListener('touchstart', dragStart, { passive: true });
+    // Drag functionality - works on both mouse and touch
+    header.addEventListener('mousedown', dragStart);
+    header.addEventListener('touchstart', dragStart, { passive: true });
 
-            function dragStart(e) {
-                isDragging = true;
-                startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-                startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-                element.style.zIndex = ++highestZIndex;
+    function dragStart(e) {
+        isDragging = true;
+        startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        element.style.zIndex = ++highestZIndex;
 
-                document.addEventListener('mousemove', drag);
-                document.addEventListener('touchmove', drag, { passive: false });
-                document.addEventListener('mouseup', dragEnd);
-                document.addEventListener('touchend', dragEnd);
-            }
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, { passive: false });
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('touchend', dragEnd);
+    }
 
-            function drag(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-                
-                dragData[windowId].x += clientX - startX;
-                dragData[windowId].y += clientY - startY;
+    function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        dragData[windowId].x += clientX - startX;
+        dragData[windowId].y += clientY - startY;
 
-                element.style.left = dragData[windowId].x + 'px';
-                element.style.top = dragData[windowId].y + 'px';
-                
-                startX = clientX;
-                startY = clientY;
-            }
+        element.style.left = dragData[windowId].x + 'px';
+        element.style.top = dragData[windowId].y + 'px';
+        
+        startX = clientX;
+        startY = clientY;
+    }
 
-            function dragEnd() {
-                isDragging = false;
-                document.removeEventListener('mousemove', drag);
-                document.removeEventListener('touchmove', drag);
-                document.removeEventListener('mouseup', dragEnd);
-                document.removeEventListener('touchend', dragEnd);
-            }
-        }
+    function dragEnd() {
+        isDragging = false;
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('touchmove', drag);
+        document.removeEventListener('mouseup', dragEnd);
+        document.removeEventListener('touchend', dragEnd);
+    }
+
+    // Resize functionality (desktop only)
+    const resizeHandle = document.createElement('div');
+    resizeHandle.style.cssText = `
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 20px;
+        height: 20px;
+        cursor: se-resize;
+        background: linear-gradient(135deg, transparent 50%, #000 50%);
+        z-index: 100;
+    `;
+    element.appendChild(resizeHandle);
+
+    let isResizing = false;
+    let startResizeX, startResizeY, startWidth, startHeight;
+
+    resizeHandle.addEventListener('mousedown', resizeStart);
+
+    function resizeStart(e) {
+        isResizing = true;
+        startResizeX = e.clientX;
+        startResizeY = e.clientY;
+        startWidth = element.offsetWidth;
+        startHeight = element.offsetHeight;
+        element.style.zIndex = ++highestZIndex;
+
+        document.addEventListener('mousemove', resize);
+        document.addEventListener('mouseup', resizeEnd);
+    }
+
+    function resize(e) {
+        if (!isResizing) return;
+        const deltaX = e.clientX - startResizeX;
+        const deltaY = e.clientY - startResizeY;
+
+        const newWidth = Math.max(400, startWidth + deltaX);
+        const newHeight = Math.max(300, startHeight + deltaY);
+
+        element.style.width = newWidth + 'px';
+        element.style.height = newHeight + 'px';
+        element.style.minWidth = 'unset';
+        element.style.minHeight = 'unset';
+    }
+
+    function resizeEnd() {
+        isResizing = false;
+        document.removeEventListener('mousemove', resize);
+        document.removeEventListener('mouseup', resizeEnd);
+    }
+}
     </script>
 </body>
 </html>
