@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -312,12 +313,13 @@
         }
     </style>
 </head>
+
 <body>
     <div class="page">
         <div class="nav-panel" id="nav-panel">
             <h1><a href="#">Catalina Chaverra Brown</a></h1>
             <hr>
-            
+
             <div class="nav-links">
                 <a onclick="showWritings()">Writings</a><br>
                 <a onclick="showSundayBest()">Sunday Best</a><br>
@@ -325,27 +327,43 @@
             </div>
 
             <div class="content-list" id="writings-list">
-                <a onclick="openPDF('essays/stays-and-femininity.pdf', 'How did stays construct the idea of femininity in the 18th century?')">How did stays construct the idea of femininity in the 18th century?</a>
-                <a onclick="openPDF('essays/keffiyeh.pdf', 'How has the keffiyeh responded to the legacies of colonialism?')">How has the keffiyeh responded to the legacies of colonialism?</a>
-                <a onclick="openPDF('essays/tatreez.pdf', 'Tatreez and the evolution of resistance')">Tatreez and the evolution of resistance</a>
-                <a onclick="openPDF('essays/meta-vaux-warwick-fuller.pdf', 'Meta Vaux Warrick Fuller')">Meta Vaux Warrick Fuller's Ethiopia Awakening</a>
-                <a onclick="openPDF('essays/roxanne-shante.pdf', 'Roxanne Shanté')">Roxanne Shanté 12" LP Poster Zine</a>
+                <a
+                    onclick="openPDF('essays/stays-and-femininity.pdf', 'How did stays construct the idea of femininity in the 18th century?')">How
+                    did stays construct the idea of femininity in the 18th century?</a>
+                <a
+                    onclick="openPDF('essays/keffiyeh.pdf', 'How has the keffiyeh responded to the legacies of colonialism?')">How
+                    has the keffiyeh responded to the legacies of colonialism?</a>
+                <a onclick="openPDF('essays/tatreez.pdf', 'Tatreez and the evolution of resistance')">Tatreez and the
+                    evolution of resistance</a>
+                <a onclick="openPDF('essays/meta-vaux-warwick-fuller.pdf', 'Meta Vaux Warrick Fuller')">Meta Vaux
+                    Warrick Fuller's Ethiopia Awakening</a>
+                <a onclick="openPDF('essays/roxanne-shante.pdf', 'Roxanne Shanté')">Roxanne Shanté 12" LP Poster
+                    Zine</a>
             </div>
 
             <div class="content-list" id="sunday-best-list">
-                <a onclick="openPDF('essays/dissertation.pdf', 'Sunday Best on San Andrés')">Sunday Best on San Andrés — Dissertation</a>
+                <a onclick="openPDF('essays/dissertation.pdf', 'Sunday Best on San Andrés')">Sunday Best on San Andrés —
+                    Dissertation</a>
                 <a>Interactive Map</a>
                 <a>Video Documentation</a>
             </div>
         </div>
 
         <div class="content-panel">
-            <span class="body-copy-head">As a fashion historian, theorist, and writer based in London, my work is deeply rooted in uncovering and amplifying the often-overlooked histories of Afro-Latina and Caribbean women. Fashion, for me, is not merely a study of garments and aesthetics but a vital lens through which to examine cultural identity, resistance, and the legacies of colonialism.</span>
+            <span class="body-copy-head">As a fashion historian, theorist, and writer based in London, my work is deeply
+                rooted in uncovering and amplifying the often-overlooked histories of Afro-Latina and Caribbean women.
+                Fashion, for me, is not merely a study of garments and aesthetics but a vital lens through which to
+                examine cultural identity, resistance, and the legacies of colonialism.</span>
 
             <bodycopy>
-                <p>My research is driven by a decolonial framework, which challenges dominant narratives and seeks to recenter marginalised voices within fashion history. Central to my practice is the belief in the transformative power of fashion. Clothing becomes not merely a form of adornment but a visual storytelling tool capable of transcending language barriers and societal norms.</p>
+                <p>My research is driven by a decolonial framework, which challenges dominant narratives and seeks to
+                    recenter marginalised voices within fashion history. Central to my practice is the belief in the
+                    transformative power of fashion. Clothing becomes not merely a form of adornment but a visual
+                    storytelling tool capable of transcending language barriers and societal norms.</p>
 
-                <p>Within my work, intersectional feminism, identity, the erotic and Marxism theory become reoccurring motifs, striving to edify the intersectionality of fashion, culture, and identity to shed light on narratives often relegated to the margins.</p>
+                <p>Within my work, intersectional feminism, identity, the erotic and Marxism theory become reoccurring
+                    motifs, striving to edify the intersectionality of fashion, culture, and identity to shed light on
+                    narratives often relegated to the margins.</p>
             </bodycopy>
         </div>
     </div>
@@ -372,105 +390,109 @@
 
         function isTouchDevice() {
             return (('ontouchstart' in window) ||
-                    (navigator.maxTouchPoints > 0) ||
-                    (navigator.msMaxTouchPoints > 0));
+                (navigator.maxTouchPoints > 0) ||
+                (navigator.msMaxTouchPoints > 0));
         }
 
-function renderPDFPage(pdf, pageNum, canvas, windowId) {
-    pdf.getPage(pageNum).then(function(page) {
-        const viewer = document.getElementById(windowId);
-        const pdfViewer = viewer.querySelector('.pdf-viewer');
-        const isFullscreen = viewer.classList.contains('fullscreen');
-        
-        let containerWidth = pdfViewer.clientWidth - 20;
-        let scale = 1.5;
-        
-        if (isFullscreen) {
-            // Fit entire page in fullscreen
-            const containerHeight = pdfViewer.clientHeight - 20;
-            const viewport = page.getViewport({ scale: 1 });
-            const widthScale = containerWidth / viewport.width;
-            const heightScale = containerHeight / viewport.height;
-            scale = Math.min(widthScale, heightScale);
-        } else {
-            // Normal window mode
-            const isMobile = window.innerWidth < 768;
-            const baseScale = isMobile ? 2 : 1.5;
-            const viewport = page.getViewport({ scale: 1 });
-            scale = (containerWidth / viewport.width) * baseScale;
-        }
+        function renderPDFPage(pdf, pageNum, canvas, windowId) {
+            pdf.getPage(pageNum).then(function (page) {
+                const viewer = document.getElementById(windowId);
+                const pdfViewer = viewer.querySelector('.pdf-viewer');
+                const isFullscreen = viewer.classList.contains('fullscreen');
 
-        const viewport = page.getViewport({ scale: scale });
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+                let containerWidth = pdfViewer.clientWidth - 20;
+                let scale = 1.5;
 
-        const renderContext = {
-            canvasContext: canvas.getContext('2d'),
-            viewport: viewport
-        };
+                if (isFullscreen) {
+                    // Fit entire page in fullscreen
+                    const containerHeight = pdfViewer.clientHeight - 20;
+                    const viewport = page.getViewport({ scale: 1 });
+                    function renderPDFPage(pdf, pageNum, canvas, windowId) {
+                        pdf.getPage(pageNum).then(function (page) {
+                            const viewer = document.getElementById(windowId);
+                            const pdfViewer = viewer.querySelector('.pdf-viewer');
+                            const isFullscreen = viewer.classList.contains('fullscreen');
+                            const isMobile = window.innerWidth < 768;
 
-        page.render(renderContext);
-        addCanvasZoom(canvas, windowId);
-    });
-}
-        function addCanvasZoom(canvas, windowId) {
-            canvas.addEventListener('dblclick', function(e) {
-                canvas.classList.toggle('zoomed');
-                if (canvas.classList.contains('zoomed')) {
-                    canvas.style.cursor = 'zoom-out';
-                    canvas.style.maxWidth = 'none';
-                    canvas.style.width = 'auto';
-                } else {
-                    canvas.style.cursor = 'zoom-in';
-                    canvas.style.maxWidth = '100%';
-                    canvas.style.width = 'auto';
-                }
-            });
-        }
+                            let containerWidth = pdfViewer.clientWidth - 20;
+                            let containerHeight = pdfViewer.clientHeight - 20;
+                            const viewport = page.getViewport({ scale: 1 });
 
-        function setupSwipeDetection(windowId) {
-            const viewer = document.getElementById(windowId);
-            if (!isTouchDevice()) return;
+                            let scale;
 
-            viewer.addEventListener('touchstart', function(e) {
-                touchStartX = e.changedTouches[0].screenX;
-            }, false);
+                            if (isFullscreen) {
+                                // Fit page in fullscreen
+                                const widthScale = containerWidth / viewport.width;
+                                const heightScale = containerHeight / viewport.height;
+                                scale = Math.min(widthScale, heightScale);
 
-            viewer.addEventListener('touchend', function(e) {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe(windowId);
-            }, false);
-        }
+                                // On mobile, maintain minimum quality even in fullscreen
+                                if (isMobile) {
+                                    scale = Math.max(scale, 1.8);
+                                }
+                            } else {
+                                // Normal window mode
+                                const baseScale = isMobile ? 2 : 1.5;
+                                scale = (containerWidth / viewport.width) * baseScale;
+                            }
 
-        function handleSwipe(windowId) {
-            const instance = pdfInstances[windowId];
-            if (!instance) return;
+                            const scaledViewport = page.getViewport({ scale: scale });
+                            canvas.width = scaledViewport.width;
+                            canvas.height = scaledViewport.height;
 
-            const diff = touchStartX - touchEndX;
-            const threshold = 50;
+                            const renderContext = {
+                                canvasContext: canvas.getContext('2d'),
+                                viewport: scaledViewport
+                            };
 
-            if (Math.abs(diff) > threshold) {
-                if (diff > 0) {
-                    nextPage(windowId);
-                } else {
-                    prevPage(windowId);
-                }
-            }
-        }
+                            page.render(renderContext);
+                            addCanvasZoom(canvas, windowId);
+                        });
+                    }
 
-        function openPDF(path, title) {
-            const windowId = 'pdf-' + Math.random().toString(36).substr(2, 9);
-            const viewer = document.createElement('div');
-            viewer.className = 'pdf-window active';
-            viewer.id = windowId;
-            viewer.style.zIndex = ++highestZIndex;
-            
-            const randomX = Math.random() * (window.innerWidth - 600) * 0.6;
-            const randomY = Math.random() * 300 + 40;
-            viewer.style.left = randomX + 'px';
-            viewer.style.top = randomY + 'px';
-            
-            viewer.innerHTML = `
+                    function setupSwipeDetection(windowId) {
+                        const viewer = document.getElementById(windowId);
+                        if (!isTouchDevice()) return;
+
+                        viewer.addEventListener('touchstart', function (e) {
+                            touchStartX = e.changedTouches[0].screenX;
+                        }, false);
+
+                        viewer.addEventListener('touchend', function (e) {
+                            touchEndX = e.changedTouches[0].screenX;
+                            handleSwipe(windowId);
+                        }, false);
+                    }
+
+                    function handleSwipe(windowId) {
+                        const instance = pdfInstances[windowId];
+                        if (!instance) return;
+
+                        const diff = touchStartX - touchEndX;
+                        const threshold = 50;
+
+                        if (Math.abs(diff) > threshold) {
+                            if (diff > 0) {
+                                nextPage(windowId);
+                            } else {
+                                prevPage(windowId);
+                            }
+                        }
+                    }
+
+                    function openPDF(path, title) {
+                        const windowId = 'pdf-' + Math.random().toString(36).substr(2, 9);
+                        const viewer = document.createElement('div');
+                        viewer.className = 'pdf-window active';
+                        viewer.id = windowId;
+                        viewer.style.zIndex = ++highestZIndex;
+
+                        const randomX = Math.random() * (window.innerWidth - 600) * 0.6;
+                        const randomY = Math.random() * 300 + 40;
+                        viewer.style.left = randomX + 'px';
+                        viewer.style.top = randomY + 'px';
+
+                        viewer.innerHTML = `
                 <div class="window-header">
                     <div class="window-title">${title}</div>
                     <div class="window-buttons">
@@ -489,93 +511,93 @@ function renderPDFPage(pdf, pageNum, canvas, windowId) {
                     </div>
                 </div>
             `;
-            
-            document.body.appendChild(viewer);
-            openWindows[windowId] = viewer;
-            dragData[windowId] = { x: randomX, y: randomY };
-            
-            pdfjsLib.getDocument(path).promise.then(function(pdf) {
-                pdfInstances[windowId] = {
-                    pdf: pdf,
-                    currentPage: 1,
-                    totalPages: pdf.numPages
-                };
 
-                const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
-                pdfViewer.innerHTML = '<canvas class="pdf-page" id="pdf-canvas-' + windowId + '"></canvas>';
-                
-                updatePageInfo(windowId);
-                renderPDFPage(pdf, 1, document.getElementById('pdf-canvas-' + windowId), windowId);
-                setupSwipeDetection(windowId);
-            }).catch(function(error) {
-                console.error('Error loading PDF:', error);
-                const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
-                pdfViewer.innerHTML = '<p style="padding: 1rem; color: #999;">Error loading PDF. Try opening it <a href="' + path + '" target="_blank" style="color: #0100ff;">here</a>.</p>';
-            });
+                        document.body.appendChild(viewer);
+                        openWindows[windowId] = viewer;
+                        dragData[windowId] = { x: randomX, y: randomY };
 
-            setupDrag(viewer, windowId);
-        }
+                        pdfjsLib.getDocument(path).promise.then(function (pdf) {
+                            pdfInstances[windowId] = {
+                                pdf: pdf,
+                                currentPage: 1,
+                                totalPages: pdf.numPages
+                            };
 
-        function updatePageInfo(windowId) {
-            const instance = pdfInstances[windowId];
-            if (instance) {
-                document.getElementById(`page-info-${windowId}`).textContent = `${instance.currentPage} / ${instance.totalPages}`;
-            }
-        }
+                            const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
+                            pdfViewer.innerHTML = '<canvas class="pdf-page" id="pdf-canvas-' + windowId + '"></canvas>';
 
-        function nextPage(windowId) {
-            const instance = pdfInstances[windowId];
-            if (instance && instance.currentPage < instance.totalPages) {
-                instance.currentPage++;
-                const canvas = document.getElementById('pdf-canvas-' + windowId);
-                canvas.classList.remove('zoomed');
-                canvas.style.maxWidth = '100%';
-                renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
-                updatePageInfo(windowId);
-            }
-        }
+                            updatePageInfo(windowId);
+                            renderPDFPage(pdf, 1, document.getElementById('pdf-canvas-' + windowId), windowId);
+                            setupSwipeDetection(windowId);
+                        }).catch(function (error) {
+                            console.error('Error loading PDF:', error);
+                            const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
+                            pdfViewer.innerHTML = '<p style="padding: 1rem; color: #999;">Error loading PDF. Try opening it <a href="' + path + '" target="_blank" style="color: #0100ff;">here</a>.</p>';
+                        });
 
-        function prevPage(windowId) {
-            const instance = pdfInstances[windowId];
-            if (instance && instance.currentPage > 1) {
-                instance.currentPage--;
-                const canvas = document.getElementById('pdf-canvas-' + windowId);
-                canvas.classList.remove('zoomed');
-                canvas.style.maxWidth = '100%';
-                renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
-                updatePageInfo(windowId);
-            }
-        }
+                        setupDrag(viewer, windowId);
+                    }
 
-        function toggleFullscreen(windowId) {
-    const viewer = document.getElementById(windowId);
-    viewer.classList.toggle('fullscreen');
-    
-    // Re-render PDF at correct scale for fullscreen
-    setTimeout(() => {
-        const instance = pdfInstances[windowId];
-        if (instance) {
-            const canvas = document.getElementById('pdf-canvas-' + windowId);
-            renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
-        }
-    }, 100);
-}
+                    function updatePageInfo(windowId) {
+                        const instance = pdfInstances[windowId];
+                        if (instance) {
+                            document.getElementById(`page-info-${windowId}`).textContent = `${instance.currentPage} / ${instance.totalPages}`;
+                        }
+                    }
 
-        function openContact() {
-            const windowId = 'contact-' + Math.random().toString(36).substr(2, 9);
-            const viewer = document.createElement('div');
-            viewer.className = 'pdf-window active';
-            viewer.id = windowId;
-            viewer.style.zIndex = ++highestZIndex;
-            viewer.style.minWidth = '400px';
-            viewer.style.minHeight = '200px';
-            
-            const randomX = Math.random() * (window.innerWidth - 400) * 0.6;
-            const randomY = Math.random() * 300 + 40;
-            viewer.style.left = randomX + 'px';
-            viewer.style.top = randomY + 'px';
-            
-            viewer.innerHTML = `
+                    function nextPage(windowId) {
+                        const instance = pdfInstances[windowId];
+                        if (instance && instance.currentPage < instance.totalPages) {
+                            instance.currentPage++;
+                            const canvas = document.getElementById('pdf-canvas-' + windowId);
+                            canvas.classList.remove('zoomed');
+                            canvas.style.maxWidth = '100%';
+                            renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
+                            updatePageInfo(windowId);
+                        }
+                    }
+
+                    function prevPage(windowId) {
+                        const instance = pdfInstances[windowId];
+                        if (instance && instance.currentPage > 1) {
+                            instance.currentPage--;
+                            const canvas = document.getElementById('pdf-canvas-' + windowId);
+                            canvas.classList.remove('zoomed');
+                            canvas.style.maxWidth = '100%';
+                            renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
+                            updatePageInfo(windowId);
+                        }
+                    }
+
+                    function toggleFullscreen(windowId) {
+                        const viewer = document.getElementById(windowId);
+                        viewer.classList.toggle('fullscreen');
+
+                        // Re-render PDF at correct scale for fullscreen
+                        setTimeout(() => {
+                            const instance = pdfInstances[windowId];
+                            if (instance) {
+                                const canvas = document.getElementById('pdf-canvas-' + windowId);
+                                renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
+                            }
+                        }, 100);
+                    }
+
+                    function openContact() {
+                        const windowId = 'contact-' + Math.random().toString(36).substr(2, 9);
+                        const viewer = document.createElement('div');
+                        viewer.className = 'pdf-window active';
+                        viewer.id = windowId;
+                        viewer.style.zIndex = ++highestZIndex;
+                        viewer.style.minWidth = '400px';
+                        viewer.style.minHeight = '200px';
+
+                        const randomX = Math.random() * (window.innerWidth - 400) * 0.6;
+                        const randomY = Math.random() * 300 + 40;
+                        viewer.style.left = randomX + 'px';
+                        viewer.style.top = randomY + 'px';
+
+                        viewer.innerHTML = `
                 <div class="window-header">
                     <div class="window-title">Contact</div>
                     <button class="window-btn" onclick="closePDF('${windowId}')">×</button>
@@ -586,70 +608,70 @@ function renderPDFPage(pdf, pageNum, canvas, windowId) {
                     <a href="https://www.linkedin.com/" target="_blank" style="color: #0100ff; text-decoration: none; display: block; padding: 0 1rem;">LinkedIn</a>
                 </div>
             `;
-            
-            document.body.appendChild(viewer);
-            openWindows[windowId] = viewer;
-            dragData[windowId] = { x: randomX, y: randomY };
-            setupDrag(viewer, windowId);
-        }
 
-        function closePDF(windowId) {
-            if (openWindows[windowId]) {
-                openWindows[windowId].remove();
-                delete openWindows[windowId];
-                delete pdfInstances[windowId];
-                delete dragData[windowId];
-            }
-        }
+                        document.body.appendChild(viewer);
+                        openWindows[windowId] = viewer;
+                        dragData[windowId] = { x: randomX, y: randomY };
+                        setupDrag(viewer, windowId);
+                    }
 
-       function setupDrag(element, windowId) {
-    const header = element.querySelector('.window-header');
-    let startX, startY;
-    let isDragging = false;
+                    function closePDF(windowId) {
+                        if (openWindows[windowId]) {
+                            openWindows[windowId].remove();
+                            delete openWindows[windowId];
+                            delete pdfInstances[windowId];
+                            delete dragData[windowId];
+                        }
+                    }
 
-    // Drag functionality - works on both mouse and touch
-    header.addEventListener('mousedown', dragStart);
-    header.addEventListener('touchstart', dragStart, { passive: true });
+                    function setupDrag(element, windowId) {
+                        const header = element.querySelector('.window-header');
+                        let startX, startY;
+                        let isDragging = false;
 
-    function dragStart(e) {
-        isDragging = true;
-        startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        element.style.zIndex = ++highestZIndex;
+                        // Drag functionality - works on both mouse and touch
+                        header.addEventListener('mousedown', dragStart);
+                        header.addEventListener('touchstart', dragStart, { passive: true });
 
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('touchmove', drag, { passive: false });
-        document.addEventListener('mouseup', dragEnd);
-        document.addEventListener('touchend', dragEnd);
-    }
+                        function dragStart(e) {
+                            isDragging = true;
+                            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                            startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                            element.style.zIndex = ++highestZIndex;
 
-    function drag(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        
-        dragData[windowId].x += clientX - startX;
-        dragData[windowId].y += clientY - startY;
+                            document.addEventListener('mousemove', drag);
+                            document.addEventListener('touchmove', drag, { passive: false });
+                            document.addEventListener('mouseup', dragEnd);
+                            document.addEventListener('touchend', dragEnd);
+                        }
 
-        element.style.left = dragData[windowId].x + 'px';
-        element.style.top = dragData[windowId].y + 'px';
-        
-        startX = clientX;
-        startY = clientY;
-    }
+                        function drag(e) {
+                            if (!isDragging) return;
+                            e.preventDefault();
+                            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
 
-    function dragEnd() {
-        isDragging = false;
-        document.removeEventListener('mousemove', drag);
-        document.removeEventListener('touchmove', drag);
-        document.removeEventListener('mouseup', dragEnd);
-        document.removeEventListener('touchend', dragEnd);
-    }
+                            dragData[windowId].x += clientX - startX;
+                            dragData[windowId].y += clientY - startY;
 
-    // Resize functionality (desktop only)
-    const resizeHandle = document.createElement('div');
-    resizeHandle.style.cssText = `
+                            element.style.left = dragData[windowId].x + 'px';
+                            element.style.top = dragData[windowId].y + 'px';
+
+                            startX = clientX;
+                            startY = clientY;
+                        }
+
+                        function dragEnd() {
+                            isDragging = false;
+                            document.removeEventListener('mousemove', drag);
+                            document.removeEventListener('touchmove', drag);
+                            document.removeEventListener('mouseup', dragEnd);
+                            document.removeEventListener('touchend', dragEnd);
+                        }
+
+                        // Resize functionality (desktop only)
+                        const resizeHandle = document.createElement('div');
+                        resizeHandle.style.cssText = `
         position: absolute;
         bottom: 0;
         right: 0;
@@ -659,45 +681,46 @@ function renderPDFPage(pdf, pageNum, canvas, windowId) {
         background: linear-gradient(135deg, transparent 50%, #000 50%);
         z-index: 100;
     `;
-    element.appendChild(resizeHandle);
+                        element.appendChild(resizeHandle);
 
-    let isResizing = false;
-    let startResizeX, startResizeY, startWidth, startHeight;
+                        let isResizing = false;
+                        let startResizeX, startResizeY, startWidth, startHeight;
 
-    resizeHandle.addEventListener('mousedown', resizeStart);
+                        resizeHandle.addEventListener('mousedown', resizeStart);
 
-    function resizeStart(e) {
-        isResizing = true;
-        startResizeX = e.clientX;
-        startResizeY = e.clientY;
-        startWidth = element.offsetWidth;
-        startHeight = element.offsetHeight;
-        element.style.zIndex = ++highestZIndex;
+                        function resizeStart(e) {
+                            isResizing = true;
+                            startResizeX = e.clientX;
+                            startResizeY = e.clientY;
+                            startWidth = element.offsetWidth;
+                            startHeight = element.offsetHeight;
+                            element.style.zIndex = ++highestZIndex;
 
-        document.addEventListener('mousemove', resize);
-        document.addEventListener('mouseup', resizeEnd);
-    }
+                            document.addEventListener('mousemove', resize);
+                            document.addEventListener('mouseup', resizeEnd);
+                        }
 
-    function resize(e) {
-        if (!isResizing) return;
-        const deltaX = e.clientX - startResizeX;
-        const deltaY = e.clientY - startResizeY;
+                        function resize(e) {
+                            if (!isResizing) return;
+                            const deltaX = e.clientX - startResizeX;
+                            const deltaY = e.clientY - startResizeY;
 
-        const newWidth = Math.max(400, startWidth + deltaX);
-        const newHeight = Math.max(300, startHeight + deltaY);
+                            const newWidth = Math.max(400, startWidth + deltaX);
+                            const newHeight = Math.max(300, startHeight + deltaY);
 
-        element.style.width = newWidth + 'px';
-        element.style.height = newHeight + 'px';
-        element.style.minWidth = 'unset';
-        element.style.minHeight = 'unset';
-    }
+                            element.style.width = newWidth + 'px';
+                            element.style.height = newHeight + 'px';
+                            element.style.minWidth = 'unset';
+                            element.style.minHeight = 'unset';
+                        }
 
-    function resizeEnd() {
-        isResizing = false;
-        document.removeEventListener('mousemove', resize);
-        document.removeEventListener('mouseup', resizeEnd);
-    }
-}
+                        function resizeEnd() {
+                            isResizing = false;
+                            document.removeEventListener('mousemove', resize);
+                            document.removeEventListener('mouseup', resizeEnd);
+                        }
+                    }
     </script>
 </body>
+
 </html>
