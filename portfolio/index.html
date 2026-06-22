@@ -301,9 +301,9 @@
 
             .pdf-window {
                 min-width: 90vw;
-                min-height: 80vh;
                 width: 90vw;
-                height: 80vh;
+                min-height: auto;
+                max-height: 90vh;
             }
 
             .pdf-controls {
@@ -376,26 +376,36 @@
                     (navigator.msMaxTouchPoints > 0));
         }
 
-        function renderPDFPage(pdf, pageNum, canvas, windowId) {
-            pdf.getPage(pageNum).then(function(page) {
-                const containerWidth = document.getElementById(windowId).querySelector('.pdf-viewer').clientWidth - 20;
-                const viewport = page.getViewport({ scale: 1 });
-                const scale = containerWidth / viewport.width;
-                const scaledViewport = page.getViewport({ scale: scale });
+function renderPDFPage(pdf, pageNum, canvas, windowId) {
+    pdf.getPage(pageNum).then(function(page) {
+        const containerWidth = document.getElementById(windowId).querySelector('.pdf-viewer').clientWidth - 20;
+        const viewport = page.getViewport({ scale: 1 });
+        
+        // Higher scale for mobile to improve resolution
+        const isMobile = window.innerWidth < 768;
+        const baseScale = isMobile ? 2 : 1.5;
+        const scale = (containerWidth / viewport.width) * baseScale;
+        const scaledViewport = page.getViewport({ scale: scale });
 
-                canvas.width = scaledViewport.width;
-                canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
 
-                const renderContext = {
-                    canvasContext: canvas.getContext('2d'),
-                    viewport: scaledViewport
-                };
+        const renderContext = {
+            canvasContext: canvas.getContext('2d'),
+            viewport: scaledViewport
+        };
 
-                page.render(renderContext);
-                addCanvasZoom(canvas, windowId);
-            });
-        }
-
+        page.render(renderContext);
+        addCanvasZoom(canvas, windowId);
+        
+        // Auto-fit window height to content
+        const viewer = document.getElementById(windowId);
+        const headerHeight = viewer.querySelector('.window-header').offsetHeight;
+        const controlsHeight = viewer.querySelector('.pdf-controls') ? viewer.querySelector('.pdf-controls').offsetHeight : 0;
+        const newHeight = canvas.height + headerHeight + controlsHeight + 20;
+        viewer.style.height = Math.min(newHeight, window.innerHeight * 0.9) + 'px';
+    });
+}
         function addCanvasZoom(canvas, windowId) {
             canvas.addEventListener('dblclick', function(e) {
                 canvas.classList.toggle('zoomed');
