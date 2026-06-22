@@ -125,8 +125,8 @@
             display: none;
             flex-direction: column;
             z-index: 1000;
-            min-width: 600px;
-            min-height: 700px;
+            min-width: 400px;
+            min-height: 500px;
         }
 
         .pdf-window.active {
@@ -468,8 +468,8 @@
             viewer.id = windowId;
             viewer.style.zIndex = ++highestZIndex;
             
-            const randomX = Math.random() * (window.innerWidth - 600) * 0.6;
-            const randomY = Math.random() * 300 + 40;
+            const randomX = Math.random() * (window.innerWidth - 400) * 0.6;
+            const randomY = Math.random() * 100 + 20;
             viewer.style.left = randomX + 'px';
             viewer.style.top = randomY + 'px';
             
