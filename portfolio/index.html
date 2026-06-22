@@ -154,6 +154,7 @@
             -webkit-user-select: none;
             user-select: none;
             gap: 1rem;
+            touch-action: none;
         }
 
         .window-header:active {
@@ -305,9 +306,8 @@
                 height: 80vh;
             }
 
-            .pdf-controls button {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.8rem;
+            .pdf-controls {
+                display: none;
             }
         }
     </style>
@@ -579,24 +579,28 @@
         function setupDrag(element, windowId) {
             const header = element.querySelector('.window-header');
             let startX, startY;
+            let isDragging = false;
 
             header.addEventListener('mousedown', dragStart);
             header.addEventListener('touchstart', dragStart, { passive: true });
 
             function dragStart(e) {
-                if (e.type.includes('touch')) return;
-                startX = e.clientX;
-                startY = e.clientY;
+                isDragging = true;
+                startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
                 element.style.zIndex = ++highestZIndex;
 
                 document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag, { passive: false });
                 document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchend', dragEnd);
             }
 
             function drag(e) {
+                if (!isDragging) return;
                 e.preventDefault();
-                const clientX = e.clientX;
-                const clientY = e.clientY;
+                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
                 
                 dragData[windowId].x += clientX - startX;
                 dragData[windowId].y += clientY - startY;
@@ -609,8 +613,11 @@
             }
 
             function dragEnd() {
+                isDragging = false;
                 document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
                 document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('touchend', dragEnd);
             }
         }
     </script>
