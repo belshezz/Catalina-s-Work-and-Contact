@@ -365,13 +365,27 @@
         let pdfInstances = {};
 
         function showWritings() {
-            document.getElementById('writings-list').classList.add('active');
-            document.getElementById('sunday-best-list').classList.remove('active');
+            const writingsList = document.getElementById('writings-list');
+            const sundayBestList = document.getElementById('sunday-best-list');
+            
+            if (writingsList.classList.contains('active')) {
+                writingsList.classList.remove('active');
+            } else {
+                writingsList.classList.add('active');
+                sundayBestList.classList.remove('active');
+            }
         }
 
         function showSundayBest() {
-            document.getElementById('sunday-best-list').classList.add('active');
-            document.getElementById('writings-list').classList.remove('active');
+            const writingsList = document.getElementById('writings-list');
+            const sundayBestList = document.getElementById('sunday-best-list');
+            
+            if (sundayBestList.classList.contains('active')) {
+                sundayBestList.classList.remove('active');
+            } else {
+                sundayBestList.classList.add('active');
+                writingsList.classList.remove('active');
+            }
         }
 
         function renderPDFPage(pdf, pageNum, canvas, windowId) {
