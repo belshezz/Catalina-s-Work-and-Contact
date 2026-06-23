@@ -496,6 +496,7 @@
             `;
             
             document.body.appendChild(viewer);
+            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
             
@@ -555,6 +556,7 @@
             `;
             
             document.body.appendChild(viewer);
+            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
             setupDrag(viewer, windowId);
@@ -595,6 +597,7 @@
             `;
             
             document.body.appendChild(viewer);
+            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
             setupDrag(viewer, windowId);
@@ -673,6 +676,7 @@
             `;
             
             document.body.appendChild(viewer);
+            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
             setupDrag(viewer, windowId);
@@ -717,6 +721,10 @@
                 
                 dragData[windowId].x += clientX - startX;
                 dragData[windowId].y += clientY - startY;
+
+                // Constrain to keep header visible
+                dragData[windowId].x = Math.max(-element.offsetWidth + 100, dragData[windowId].x);
+                dragData[windowId].y = Math.max(0, dragData[windowId].y);
 
                 element.style.left = dragData[windowId].x + 'px';
                 element.style.top = dragData[windowId].y + 'px';
@@ -786,6 +794,14 @@
                 }
             }
         }
+
+        let lastOpenWindow = null;
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lastOpenWindow) {
+                closePDF(lastOpenWindow);
+            }
+        });
     </script>
 </body>
 </html>
