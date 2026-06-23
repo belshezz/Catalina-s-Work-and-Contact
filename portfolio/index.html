@@ -75,7 +75,7 @@
             margin: 1rem 0;
         }
 
-       .nav-links a {
+        .nav-links a {
             display: block;
             color: #0100ff;
             text-decoration: none;
@@ -86,6 +86,7 @@
             cursor: pointer;
             letter-spacing: 0.05em;
         }
+
         .nav-links a:hover {
             opacity: 0.7;
         }
@@ -266,7 +267,7 @@
 
         .content-list.active {
             display: block;
-            margin-top: 1.2rem;
+            margin-top: 1rem;
         }
 
         .content-list a {
@@ -674,7 +675,7 @@
             document.body.appendChild(viewer);
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
-            setupDragNoResize(viewer, windowId);
+            setupDrag(viewer, windowId);
         }
 
         function closePDF(windowId) {
@@ -686,7 +687,7 @@
             }
         }
 
-        function setupDragNoResize(element, windowId) {
+        function setupDrag(element, windowId) {
             const header = element.querySelector('.window-header');
             let startX, startY;
             let isDragging = false;
@@ -731,6 +732,58 @@
                 document.removeEventListener('touchmove', drag);
                 document.removeEventListener('mouseup', dragEnd);
                 document.removeEventListener('touchend', dragEnd);
+            }
+
+            if (!windowId.startsWith('contact-')) {
+                const resizeHandle = document.createElement('div');
+                resizeHandle.style.cssText = `
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    width: 20px;
+                    height: 20px;
+                    cursor: se-resize;
+                    background: linear-gradient(135deg, transparent 50%, #000 50%);
+                    z-index: 100;
+                `;
+                element.appendChild(resizeHandle);
+
+                let isResizing = false;
+                let startResizeX, startResizeY, startWidth, startHeight;
+
+                resizeHandle.addEventListener('mousedown', resizeStart);
+
+                function resizeStart(e) {
+                    isResizing = true;
+                    startResizeX = e.clientX;
+                    startResizeY = e.clientY;
+                    startWidth = element.offsetWidth;
+                    startHeight = element.offsetHeight;
+                    element.style.zIndex = ++highestZIndex;
+
+                    document.addEventListener('mousemove', resize);
+                    document.addEventListener('mouseup', resizeEnd);
+                }
+
+                function resize(e) {
+                    if (!isResizing) return;
+                    const deltaX = e.clientX - startResizeX;
+                    const deltaY = e.clientY - startResizeY;
+
+                    const newWidth = Math.max(400, startWidth + deltaX);
+                    const newHeight = Math.max(300, startHeight + deltaY);
+
+                    element.style.width = newWidth + 'px';
+                    element.style.height = newHeight + 'px';
+                    element.style.minWidth = 'unset';
+                    element.style.minHeight = 'unset';
+                }
+
+                function resizeEnd() {
+                    isResizing = false;
+                    document.removeEventListener('mousemove', resize);
+                    document.removeEventListener('mouseup', resizeEnd);
+                }
             }
         }
     </script>
