@@ -281,6 +281,12 @@
             opacity: 0.7;
         }
 
+        iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+
         @media (max-width: 768px) {
             .nav-panel {
                 width: 100%;
@@ -334,8 +340,8 @@
 
             <div class="content-list" id="sunday-best-list">
                 <a onclick="openPDF('essays/dissertation.pdf', 'Sunday Best on San Andrés')">Sunday Best on San Andrés — Dissertation</a>
-                <a>Interactive Map</a>
-                <a>Video Documentation</a>
+                <a onclick="openMap('Interactive Map')">Interactive Map</a>
+                <a onclick="openVideo('Video Documentation')">Video Documentation</a>
             </div>
         </div>
 
@@ -357,8 +363,6 @@
         let dragData = {};
         let highestZIndex = 1000;
         let pdfInstances = {};
-        let touchStartX = 0;
-        let touchEndX = 0;
 
         function showWritings() {
             document.getElementById('writings-list').classList.add('active');
@@ -368,12 +372,6 @@
         function showSundayBest() {
             document.getElementById('sunday-best-list').classList.add('active');
             document.getElementById('writings-list').classList.remove('active');
-        }
-
-        function isTouchDevice() {
-            return (('ontouchstart' in window) ||
-                    (navigator.maxTouchPoints > 0) ||
-                    (navigator.msMaxTouchPoints > 0));
         }
 
         function renderPDFPage(pdf, pageNum, canvas, windowId) {
@@ -413,6 +411,14 @@
 
                 page.render(renderContext);
                 addCanvasZoom(canvas, windowId);
+
+                const isMobileDevice = window.innerWidth < 768;
+                if (isMobileDevice) {
+                    const headerHeight = viewer.querySelector('.window-header').offsetHeight;
+                    const totalHeight = canvas.height + headerHeight + 20;
+                    const maxHeight = window.innerHeight * 0.9;
+                    viewer.style.height = Math.min(totalHeight, maxHeight) + 'px';
+                }
             });
         }
 
@@ -431,36 +437,6 @@
             });
         }
 
-        function setupSwipeDetection(windowId) {
-            const viewer = document.getElementById(windowId);
-            if (!isTouchDevice()) return;
-
-            viewer.addEventListener('touchstart', function(e) {
-                touchStartX = e.changedTouches[0].screenX;
-            }, false);
-
-            viewer.addEventListener('touchend', function(e) {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe(windowId);
-            }, false);
-        }
-
-        function handleSwipe(windowId) {
-            const instance = pdfInstances[windowId];
-            if (!instance) return;
-
-            const diff = touchStartX - touchEndX;
-            const threshold = 50;
-
-            if (Math.abs(diff) > threshold) {
-                if (diff > 0) {
-                    nextPage(windowId);
-                } else {
-                    prevPage(windowId);
-                }
-            }
-        }
-
         function openPDF(path, title) {
             const windowId = 'pdf-' + Math.random().toString(36).substr(2, 9);
             const viewer = document.createElement('div');
@@ -472,10 +448,11 @@
             const randomY = Math.random() * 100 + 20;
             viewer.style.left = randomX + 'px';
             viewer.style.top = randomY + 'px';
+            
             const isMobile = window.innerWidth < 768;
             if (isMobile) {
                 viewer.style.width = '90vw';
-                viewer.style.height = '60vh';
+                viewer.style.height = '50vh';
             } else {
                 viewer.style.width = '600px';
                 viewer.style.height = '700px';
@@ -517,13 +494,92 @@
                 
                 updatePageInfo(windowId);
                 renderPDFPage(pdf, 1, document.getElementById('pdf-canvas-' + windowId), windowId);
-                setupSwipeDetection(windowId);
             }).catch(function(error) {
                 console.error('Error loading PDF:', error);
                 const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
                 pdfViewer.innerHTML = '<p style="padding: 1rem; color: #999;">Error loading PDF. Try opening it <a href="' + path + '" target="_blank" style="color: #0100ff;">here</a>.</p>';
             });
 
+            setupDrag(viewer, windowId);
+        }
+
+        function openMap(title) {
+            const windowId = 'map-' + Math.random().toString(36).substr(2, 9);
+            const viewer = document.createElement('div');
+            viewer.className = 'pdf-window active';
+            viewer.id = windowId;
+            viewer.style.zIndex = ++highestZIndex;
+            
+            const randomX = Math.random() * (window.innerWidth - 400) * 0.6;
+            const randomY = Math.random() * 100 + 20;
+            viewer.style.left = randomX + 'px';
+            viewer.style.top = randomY + 'px';
+            
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                viewer.style.width = '90vw';
+                viewer.style.height = '60vh';
+            } else {
+                viewer.style.width = '700px';
+                viewer.style.height = '600px';
+            }
+            
+            viewer.innerHTML = `
+                <div class="window-header">
+                    <div class="window-title">${title}</div>
+                    <div class="window-buttons">
+                        <button class="window-btn" onclick="toggleFullscreen('${windowId}')" title="Fullscreen">⛶</button>
+                        <button class="window-btn" onclick="closePDF('${windowId}')">×</button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <iframe src="https://www.google.com/maps/d/embed?mid=1Zxxo1wL_XgyWjSok7dbGe5HMaYwoGIc"></iframe>
+                </div>
+            `;
+            
+            document.body.appendChild(viewer);
+            openWindows[windowId] = viewer;
+            dragData[windowId] = { x: randomX, y: randomY };
+            setupDrag(viewer, windowId);
+        }
+
+        function openVideo(title) {
+            const windowId = 'video-' + Math.random().toString(36).substr(2, 9);
+            const viewer = document.createElement('div');
+            viewer.className = 'pdf-window active';
+            viewer.id = windowId;
+            viewer.style.zIndex = ++highestZIndex;
+            
+            const randomX = Math.random() * (window.innerWidth - 400) * 0.6;
+            const randomY = Math.random() * 100 + 20;
+            viewer.style.left = randomX + 'px';
+            viewer.style.top = randomY + 'px';
+            
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                viewer.style.width = '90vw';
+                viewer.style.height = '60vh';
+            } else {
+                viewer.style.width = '700px';
+                viewer.style.height = '500px';
+            }
+            
+            viewer.innerHTML = `
+                <div class="window-header">
+                    <div class="window-title">${title}</div>
+                    <div class="window-buttons">
+                        <button class="window-btn" onclick="toggleFullscreen('${windowId}')" title="Fullscreen">⛶</button>
+                        <button class="window-btn" onclick="closePDF('${windowId}')">×</button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <iframe src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID" allowfullscreen></iframe>
+                </div>
+            `;
+            
+            document.body.appendChild(viewer);
+            openWindows[windowId] = viewer;
+            dragData[windowId] = { x: randomX, y: randomY };
             setupDrag(viewer, windowId);
         }
 
@@ -581,7 +637,7 @@
             viewer.style.minHeight = '200px';
             
             const randomX = Math.random() * (window.innerWidth - 400) * 0.6;
-            const randomY = Math.random() * 300 + 40;
+            const randomY = Math.random() * 100 + 20;
             viewer.style.left = randomX + 'px';
             viewer.style.top = randomY + 'px';
             
