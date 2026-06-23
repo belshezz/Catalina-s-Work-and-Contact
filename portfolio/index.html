@@ -366,6 +366,7 @@
         let dragData = {};
         let highestZIndex = 1000;
         let pdfInstances = {};
+        let openPDFs = {};
 
         function showWritings() {
             const writingsList = document.getElementById('writings-list');
@@ -455,6 +456,12 @@
         }
 
         function openPDF(path, title) {
+            if (openPDFs[path]) {
+                closePDF(openPDFs[path]);
+                delete openPDFs[path];
+                return;
+            }
+
             const windowId = 'pdf-' + Math.random().toString(36).substr(2, 9);
             const viewer = document.createElement('div');
             viewer.className = 'pdf-window active';
@@ -496,9 +503,9 @@
             `;
             
             document.body.appendChild(viewer);
-            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
+            openPDFs[path] = windowId;
             
             pdfjsLib.getDocument(path).promise.then(function(pdf) {
                 pdfInstances[windowId] = {
@@ -556,7 +563,6 @@
             `;
             
             document.body.appendChild(viewer);
-            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
             setupDrag(viewer, windowId);
@@ -597,7 +603,6 @@
             `;
             
             document.body.appendChild(viewer);
-            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
             setupDrag(viewer, windowId);
@@ -676,7 +681,6 @@
             `;
             
             document.body.appendChild(viewer);
-            lastOpenWindow = windowId;
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
             setupDrag(viewer, windowId);
@@ -688,6 +692,12 @@
                 delete openWindows[windowId];
                 delete pdfInstances[windowId];
                 delete dragData[windowId];
+                
+                for (let path in openPDFs) {
+                    if (openPDFs[path] === windowId) {
+                        delete openPDFs[path];
+                    }
+                }
             }
         }
 
@@ -722,9 +732,11 @@
                 dragData[windowId].x += clientX - startX;
                 dragData[windowId].y += clientY - startY;
 
-                // Constrain to keep header visible
-                dragData[windowId].x = Math.max(-element.offsetWidth + 100, dragData[windowId].x);
+                const minVisibleHeader = 100;
+                dragData[windowId].x = Math.max(-element.offsetWidth + minVisibleHeader, dragData[windowId].x);
+                dragData[windowId].x = Math.min(window.innerWidth - minVisibleHeader, dragData[windowId].x);
                 dragData[windowId].y = Math.max(0, dragData[windowId].y);
+                dragData[windowId].y = Math.min(window.innerHeight - 50, dragData[windowId].y);
 
                 element.style.left = dragData[windowId].x + 'px';
                 element.style.top = dragData[windowId].y + 'px';
@@ -795,11 +807,20 @@
             }
         }
 
-        let lastOpenWindow = null;
-
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && lastOpenWindow) {
-                closePDF(lastOpenWindow);
+            if (e.key === 'Escape') {
+                let highestWindow = null;
+                let highestZ = 0;
+                for (let windowId in openWindows) {
+                    const zIndex = parseInt(openWindows[windowId].style.zIndex);
+                    if (zIndex > highestZ) {
+                        highestZ = zIndex;
+                        highestWindow = windowId;
+                    }
+                }
+                if (highestWindow) {
+                    closePDF(highestWindow);
+                }
             }
         });
     </script>
