@@ -367,6 +367,7 @@
         let highestZIndex = 1000;
         let pdfInstances = {};
         let openPDFs = {};
+        let contactWindowId = null;
 
         function showWritings() {
             const writingsList = document.getElementById('writings-list');
@@ -397,7 +398,6 @@
                 const viewer = document.getElementById(windowId);
                 const pdfViewer = viewer.querySelector('.pdf-viewer');
                 const isFullscreen = viewer.classList.contains('fullscreen');
-                const isMobile = window.innerWidth < 768;
                 
                 let containerWidth = pdfViewer.clientWidth - 20;
                 let containerHeight = pdfViewer.clientHeight - 20;
@@ -409,13 +409,8 @@
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
                     scale = Math.min(widthScale, heightScale);
-                    
-                    if (isMobile) {
-                        scale = Math.max(scale, 1.8);
-                    }
                 } else {
-                    const baseScale = isMobile ? 2 : 1.5;
-                    scale = (containerWidth / viewport.width) * baseScale;
+                    scale = (containerWidth / viewport.width) * 1.5;
                 }
 
                 const scaledViewport = page.getViewport({ scale: scale });
@@ -429,11 +424,38 @@
 
                 page.render(renderContext);
                 addCanvasZoom(canvas, windowId);
+            });
+        }
 
-                const isMobileDevice = window.innerWidth < 768;
-                if (isMobileDevice) {
-                    viewer.style.height = '70vh';
-                }
+        function renderAllPages(pdf, windowId) {
+            const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
+            pdfViewer.innerHTML = '';
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const canvas = document.createElement('canvas');
+                canvas.className = 'pdf-page';
+                canvas.id = 'pdf-canvas-' + windowId + '-' + i;
+                pdfViewer.appendChild(canvas);
+                renderPageForScroll(pdf, i, canvas);
+            }
+        }
+
+        function renderPageForScroll(pdf, pageNum, canvas) {
+            pdf.getPage(pageNum).then(function(page) {
+                const containerWidth = canvas.parentElement.clientWidth - 20;
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = containerWidth / viewport.width;
+                const scaledViewport = page.getViewport({ scale: scale });
+
+                canvas.width = scaledViewport.width;
+                canvas.height = scaledViewport.height;
+
+                const renderContext = {
+                    canvasContext: canvas.getContext('2d'),
+                    viewport: scaledViewport
+                };
+
+                page.render(renderContext);
             });
         }
 
@@ -473,7 +495,7 @@
             const isMobile = window.innerWidth < 768;
             if (isMobile) {
                 viewer.style.width = '90vw';
-                viewer.style.height = '50vh';
+                viewer.style.height = '70vh';
             } else {
                 viewer.style.width = '600px';
                 viewer.style.height = '700px';
@@ -511,11 +533,16 @@
                     totalPages: pdf.numPages
                 };
 
-                const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
-                pdfViewer.innerHTML = '<canvas class="pdf-page" id="pdf-canvas-' + windowId + '"></canvas>';
+                const isMobileRender = window.innerWidth < 768;
                 
-                updatePageInfo(windowId);
-                renderPDFPage(pdf, 1, document.getElementById('pdf-canvas-' + windowId), windowId);
+                if (isMobileRender) {
+                    renderAllPages(pdf, windowId);
+                } else {
+                    const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
+                    pdfViewer.innerHTML = '<canvas class="pdf-page" id="pdf-canvas-' + windowId + '"></canvas>';
+                    updatePageInfo(windowId);
+                    renderPDFPage(pdf, 1, document.getElementById('pdf-canvas-' + windowId), windowId);
+                }
             }).catch(function(error) {
                 console.error('Error loading PDF:', error);
                 const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
@@ -644,12 +671,20 @@
                 const instance = pdfInstances[windowId];
                 if (instance) {
                     const canvas = document.getElementById('pdf-canvas-' + windowId);
-                    renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
+                    if (canvas) {
+                        renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
+                    }
                 }
             }, 100);
         }
 
         function openContact() {
+            if (contactWindowId && openWindows[contactWindowId]) {
+                closePDF(contactWindowId);
+                contactWindowId = null;
+                return;
+            }
+
             const windowId = 'contact-' + Math.random().toString(36).substr(2, 9);
             const viewer = document.createElement('div');
             viewer.className = 'pdf-window active';
@@ -680,6 +715,7 @@
             document.body.appendChild(viewer);
             openWindows[windowId] = viewer;
             dragData[windowId] = { x: randomX, y: randomY };
+            contactWindowId = windowId;
             setupDrag(viewer, windowId);
         }
 
@@ -689,6 +725,10 @@
                 delete openWindows[windowId];
                 delete pdfInstances[windowId];
                 delete dragData[windowId];
+                
+                if (windowId === contactWindowId) {
+                    contactWindowId = null;
+                }
                 
                 for (let path in openPDFs) {
                     if (openPDFs[path] === windowId) {
