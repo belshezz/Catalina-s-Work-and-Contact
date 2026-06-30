@@ -432,10 +432,7 @@
 
                 const isMobileDevice = window.innerWidth < 768;
                 if (isMobileDevice) {
-                    const headerHeight = viewer.querySelector('.window-header').offsetHeight;
-                    const totalHeight = canvas.height + headerHeight + 20;
-                    const maxHeight = window.innerHeight * 0.9;
-                    viewer.style.height = Math.min(totalHeight, maxHeight) + 'px';
+                    viewer.style.height = '70vh';
                 }
             });
         }
