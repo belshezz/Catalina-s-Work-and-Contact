@@ -434,7 +434,8 @@
                 if (isFullscreen) {
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
-                    scale = Math.min(widthScale, heightScale) * 1.8;
+                    const dpr = window.devicePixelRatio || 1;
+                    scale = Math.min(widthScale, heightScale) * dpr;
                 }
 
                 const scaledViewport = page.getViewport({ scale: scale });
