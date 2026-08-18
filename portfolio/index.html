@@ -378,25 +378,15 @@
 
         function showWritings() {
             const writingsList = document.getElementById('writings-list');
+            const interviewsList = document.getElementById('interviews-list');
             const sundayBestList = document.getElementById('sunday-best-list');
-            
+    
             if (writingsList.classList.contains('active')) {
                 writingsList.classList.remove('active');
             } else {
                 writingsList.classList.add('active');
+                interviewsList.classList.remove('active');
                 sundayBestList.classList.remove('active');
-            }
-        }
-
-        function showSundayBest() {
-            const writingsList = document.getElementById('writings-list');
-            const sundayBestList = document.getElementById('sunday-best-list');
-            
-            if (sundayBestList.classList.contains('active')) {
-                sundayBestList.classList.remove('active');
-            } else {
-                sundayBestList.classList.add('active');
-                writingsList.classList.remove('active');
             }
         }
 
@@ -411,6 +401,20 @@
                 interviewsList.classList.add('active');
                 writingsList.classList.remove('active');
                 sundayBestList.classList.remove('active');
+            }
+        }
+
+        function showSundayBest() {
+            const writingsList = document.getElementById('writings-list');
+            const interviewsList = document.getElementById('interviews-list');
+            const sundayBestList = document.getElementById('sunday-best-list');
+    
+            if (sundayBestList.classList.contains('active')) {
+                sundayBestList.classList.remove('active');
+            } else {
+                sundayBestList.classList.add('active');
+                writingsList.classList.remove('active');
+                interviewsList.classList.remove('active');
             }
         }
 
