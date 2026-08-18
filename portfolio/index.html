@@ -435,9 +435,9 @@
                 if (isFullscreen) {
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
-                    scale = Math.min(widthScale, heightScale) * 2;
+                    scale = Math.min(widthScale, heightScale);
                 } else {
-                    scale = (containerWidth / viewport.width) * 2.5;
+                    scale = (containerWidth / viewport.width) * 3;
                 }
 
                 const scaledViewport = page.getViewport({ scale: scale });
@@ -445,7 +445,7 @@
                 canvas.height = scaledViewport.height;
 
                 const renderContext = {
-                    canvasContext: canvas.getContext('2d'),
+                    canvasContext: canvas.getContext('2d', { willReadFrequently: true }),
                     viewport: scaledViewport
                 };
 
