@@ -223,6 +223,7 @@
             cursor: zoom-in;
             max-width: 100%;
             height: auto;
+            image-rendering: crisp-edges;
         }
 
         .pdf-page.zoomed {
@@ -275,14 +276,14 @@
             color: #000;
             text-decoration: none;
             font-size: 1rem;
-            font-weight :bold;
+            font-weight: bold;
             margin-bottom: 0.5rem;
             line-height: 1.3;
             cursor: pointer;
         }
 
         .content-list a:hover {
-            color:#0100ff;
+            color: #0100ff;
         }
  
         iframe {
@@ -434,7 +435,7 @@
                 if (isFullscreen) {
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
-                    scale = Math.min(widthScale, heightScale);
+                    scale = Math.min(widthScale, heightScale) * 2;
                 } else {
                     scale = (containerWidth / viewport.width) * 2.5;
                 }
@@ -454,6 +455,9 @@
         }
 
         function addCanvasZoom(canvas, windowId) {
+            if (canvas.hasListener) return;
+            canvas.hasListener = true;
+            
             canvas.addEventListener('dblclick', function(e) {
                 const viewer = document.getElementById(windowId);
                 const isFullscreen = viewer.classList.contains('fullscreen');
@@ -463,7 +467,7 @@
                 canvas.classList.toggle('zoomed');
                 if (canvas.classList.contains('zoomed')) {
                     canvas.style.cursor = 'zoom-out';
-                    canvas.style.transform = 'scale(1.5)';
+                    canvas.style.transform = 'scale(2)';
                     canvas.style.transformOrigin = 'top center';
                 } else {
                     canvas.style.cursor = 'zoom-in';
@@ -489,7 +493,7 @@
             pdf.getPage(pageNum).then(function(page) {
                 const containerWidth = canvas.parentElement.clientWidth - 20;
                 const viewport = page.getViewport({ scale: 1 });
-                const scale = (containerWidth / viewport.width)*2.5;
+                const scale = (containerWidth / viewport.width) * 2.5;
                 const scaledViewport = page.getViewport({ scale: scale });
 
                 canvas.width = scaledViewport.width;
@@ -675,7 +679,7 @@
                 instance.currentPage++;
                 const canvas = document.getElementById('pdf-canvas-' + windowId);
                 canvas.classList.remove('zoomed');
-                canvas.style.maxWidth = '100%';
+                canvas.style.transform = 'scale(1)';
                 renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
                 updatePageInfo(windowId);
             }
@@ -687,7 +691,7 @@
                 instance.currentPage--;
                 const canvas = document.getElementById('pdf-canvas-' + windowId);
                 canvas.classList.remove('zoomed');
-                canvas.style.maxWidth = '100%';
+                canvas.style.transform = 'scale(1)';
                 renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
                 updatePageInfo(windowId);
             }
@@ -702,6 +706,8 @@
                 if (instance) {
                     const canvas = document.getElementById('pdf-canvas-' + windowId);
                     if (canvas) {
+                        canvas.classList.remove('zoomed');
+                        canvas.style.transform = 'scale(1)';
                         renderPDFPage(instance.pdf, instance.currentPage, canvas, windowId);
                     }
                 }
