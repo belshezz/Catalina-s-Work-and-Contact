@@ -430,25 +430,30 @@
                 let containerHeight = pdfViewer.clientHeight - 20;
                 const viewport = page.getViewport({ scale: 1 });
 
-                let scale;
-                const dpr = window.devicePixelRatio || 1;
-
+                let cssScale;
                 if (isFullscreen) {
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
-                    scale = Math.min(widthScale, heightScale);
+                    cssScale = Math.min(widthScale, heightScale);
                 } else {
-                    const baseScale = dpr > 1 ? 2.5 : 3;
-                    scale = (containerWidth / viewport.width) * baseScale;
+                    cssScale = containerWidth / viewport.width;
                 }
 
-                const scaledViewport = page.getViewport({ scale: scale });
-                canvas.width = scaledViewport.width;
-                canvas.height = scaledViewport.height;
+                const dpr = window.devicePixelRatio || 1;
+                const renderScale = cssScale * dpr * 2;
+
+                const cssViewport = page.getViewport({ scale: cssScale });
+                const renderViewport = page.getViewport({ scale: renderScale });
+
+                canvas.width = renderViewport.width;
+                canvas.height = renderViewport.height;
+                canvas.style.width = cssViewport.width + 'px';
+                canvas.style.height = cssViewport.height + 'px';
+                canvas.style.maxWidth = 'none';
 
                 const renderContext = {
                     canvasContext: canvas.getContext('2d'),
-                    viewport: scaledViewport
+                    viewport: renderViewport
                 };
 
                 page.render(renderContext);
@@ -495,15 +500,22 @@
             pdf.getPage(pageNum).then(function(page) {
                 const containerWidth = canvas.parentElement.clientWidth - 20;
                 const viewport = page.getViewport({ scale: 1 });
-                const scale = (containerWidth / viewport.width) * 2.5;
-                const scaledViewport = page.getViewport({ scale: scale });
+                const cssScale = containerWidth / viewport.width;
+                const dpr = window.devicePixelRatio || 1;
+                const renderScale = cssScale * dpr * 1.5;
 
-                canvas.width = scaledViewport.width;
-                canvas.height = scaledViewport.height;
+                const cssViewport = page.getViewport({ scale: cssScale });
+                const renderViewport = page.getViewport({ scale: renderScale });
+
+                canvas.width = renderViewport.width;
+                canvas.height = renderViewport.height;
+                canvas.style.width = cssViewport.width + 'px';
+                canvas.style.height = cssViewport.height + 'px';
+                canvas.style.maxWidth = 'none';
 
                 const renderContext = {
                     canvasContext: canvas.getContext('2d'),
-                    viewport: scaledViewport
+                    viewport: renderViewport
                 };
 
                 page.render(renderContext);
