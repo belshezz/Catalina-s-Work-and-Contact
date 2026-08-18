@@ -424,33 +424,34 @@
                 const viewer = document.getElementById(windowId);
                 const pdfViewer = viewer.querySelector('.pdf-viewer');
                 const isFullscreen = viewer.classList.contains('fullscreen');
-                
+        
                 let containerWidth = pdfViewer.clientWidth - 20;
                 let containerHeight = pdfViewer.clientHeight - 20;
                 const viewport = page.getViewport({ scale: 1 });
-                
+        
                 let scale;
-                
+        
                 if (isFullscreen) {
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
-                    const dpr = window.devicePixelRatio || 1;
-                    scale = Math.min(widthScale, heightScale) * dpr;
+                    scale = Math.min(widthScale, heightScale) * 1.8;
+                } else {
+                    scale = (containerWidth / viewport.width) * 2.5;
                 }
 
-                const scaledViewport = page.getViewport({ scale: scale });
-                canvas.width = scaledViewport.width;
-                canvas.height = scaledViewport.height;
+        const scaledViewport = page.getViewport({ scale: scale });
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
 
-                const renderContext = {
-                    canvasContext: canvas.getContext('2d'),
-                    viewport: scaledViewport
-                };
+        const renderContext = {
+            canvasContext: canvas.getContext('2d'),
+            viewport: scaledViewport
+        };
 
-                page.render(renderContext);
-                addCanvasZoom(canvas, windowId);
-            });
-        }
+        page.render(renderContext);
+        addCanvasZoom(canvas, windowId);
+    });
+}
 
         function renderAllPages(pdf, windowId) {
             const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
