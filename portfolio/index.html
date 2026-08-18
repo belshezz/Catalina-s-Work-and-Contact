@@ -424,34 +424,48 @@
                 const viewer = document.getElementById(windowId);
                 const pdfViewer = viewer.querySelector('.pdf-viewer');
                 const isFullscreen = viewer.classList.contains('fullscreen');
-        
+
                 let containerWidth = pdfViewer.clientWidth - 20;
                 let containerHeight = pdfViewer.clientHeight - 20;
                 const viewport = page.getViewport({ scale: 1 });
-        
+
                 let scale;
-        
+
                 if (isFullscreen) {
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
                     scale = Math.min(widthScale, heightScale);
                 } else {
                     scale = (containerWidth / viewport.width) * 2.5;
+                }
+
+                const scaledViewport = page.getViewport({ scale: scale });
+                canvas.width = scaledViewport.width;
+                canvas.height = scaledViewport.height;
+
+                const renderContext = {
+                    canvasContext: canvas.getContext('2d'),
+                    viewport: scaledViewport
+                };
+
+                page.render(renderContext);
+                addCanvasZoom(canvas, windowId);
+            });
         }
 
-        const scaledViewport = page.getViewport({ scale: scale });
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
-
-        const renderContext = {
-            canvasContext: canvas.getContext('2d'),
-            viewport: scaledViewport
-        };
-
-        page.render(renderContext);
-        addCanvasZoom(canvas, windowId);
-    });
-}
+        function addCanvasZoom(canvas, windowId) {
+            canvas.addEventListener('dblclick', function(e) {
+                canvas.classList.toggle('zoomed');
+                if (canvas.classList.contains('zoomed')) {
+                    canvas.style.cursor = 'zoom-out';
+                    canvas.style.transform = 'scale(1.5)';
+                    canvas.style.transformOrigin = 'top center';
+                } else {
+                    canvas.style.cursor = 'zoom-in';
+                    canvas.style.transform = 'scale(1)';
+                }
+            });
+        }
 
         function renderAllPages(pdf, windowId) {
             const pdfViewer = document.getElementById(`pdf-viewer-${windowId}`);
