@@ -455,6 +455,11 @@
 
         function addCanvasZoom(canvas, windowId) {
             canvas.addEventListener('dblclick', function(e) {
+                const viewer = document.getElementById(windowId);
+                const isFullscreen = viewer.classList.contains('fullscreen');
+        
+                if (!isFullscreen) return;
+        
                 canvas.classList.toggle('zoomed');
                 if (canvas.classList.contains('zoomed')) {
                     canvas.style.cursor = 'zoom-out';
