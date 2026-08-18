@@ -330,6 +330,7 @@
             
             <div class="nav-links">
                 <a onclick="showWritings()">Writings</a><br>
+                <a onclick="showInterviews()">Interviews</a><br>
                 <a onclick="showSundayBest()">Sunday Best</a><br>
                 <a onclick="openContact()">Contact</a>
             </div>
@@ -340,6 +341,11 @@
                 <a onclick="openPDF('essays/tatreez.pdf', 'Tatreez and the evolution of resistance')">Tatreez and the evolution of resistance</a>
                 <a onclick="openPDF('essays/meta-vaux-warwick-fuller.pdf', 'Meta Vaux Warrick Fuller')">Meta Vaux Warrick Fuller's Ethiopia Awakening</a>
                 <a onclick="openPDF('essays/roxanne-shante.pdf', 'Roxanne Shanté')">Roxanne Shanté 12" LP Poster Zine</a>
+            </div>
+
+            <div class="content-list" id="interviews-list">
+                <a onclick="openPDF('essays/RHIAN PHIN.pdf', 'Rhian Phin')">Rhian Phin</a>
+                <a onclick="openPDF('essays/KNOLLSY.pdf', 'Knollsy')">Knollsy</a>
             </div>
 
             <div class="content-list" id="sunday-best-list">
@@ -391,6 +397,20 @@
             } else {
                 sundayBestList.classList.add('active');
                 writingsList.classList.remove('active');
+            }
+        }
+
+        function showInterviews() {
+            const writingsList = document.getElementById('writings-list');
+            const interviewsList = document.getElementById('interviews-list');
+            const sundayBestList = document.getElementById('sunday-best-list');
+    
+            if (interviewsList.classList.contains('active')) {
+                interviewsList.classList.remove('active');
+            } else {
+                interviewsList.classList.add('active');
+                writingsList.classList.remove('active');
+                sundayBestList.classList.remove('active');
             }
         }
 
