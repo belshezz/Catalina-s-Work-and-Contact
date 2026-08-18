@@ -431,13 +431,15 @@
                 const viewport = page.getViewport({ scale: 1 });
 
                 let scale;
+                const dpr = window.devicePixelRatio || 1;
 
                 if (isFullscreen) {
                     const widthScale = containerWidth / viewport.width;
                     const heightScale = containerHeight / viewport.height;
                     scale = Math.min(widthScale, heightScale);
                 } else {
-                    scale = (containerWidth / viewport.width) * 3;
+                    const baseScale = dpr > 1 ? 2.5 : 3;
+                    scale = (containerWidth / viewport.width) * baseScale;
                 }
 
                 const scaledViewport = page.getViewport({ scale: scale });
@@ -445,7 +447,7 @@
                 canvas.height = scaledViewport.height;
 
                 const renderContext = {
-                    canvasContext: canvas.getContext('2d', { willReadFrequently: true }),
+                    canvasContext: canvas.getContext('2d'),
                     viewport: scaledViewport
                 };
 
