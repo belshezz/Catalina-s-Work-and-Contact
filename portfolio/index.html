@@ -499,21 +499,6 @@
             });
         }
 
-        function addCanvasZoom(canvas, windowId) {
-            canvas.addEventListener('dblclick', function(e) {
-                canvas.classList.toggle('zoomed');
-                if (canvas.classList.contains('zoomed')) {
-                    canvas.style.cursor = 'zoom-out';
-                    canvas.style.maxWidth = 'none';
-                    canvas.style.width = 'auto';
-                } else {
-                    canvas.style.cursor = 'zoom-in';
-                    canvas.style.maxWidth = '100%';
-                    canvas.style.width = 'auto';
-                }
-            });
-        }
-
         function openPDF(path, title) {
             if (openPDFs[path]) {
                 closePDF(openPDFs[path]);
